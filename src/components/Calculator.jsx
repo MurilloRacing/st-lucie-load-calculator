@@ -137,7 +137,7 @@ function Calculator() {
         <Link to="/" className="text-blue-500 hover:underline">Back to Home</Link>
       </div>
 
-      <p className="text-center mb-4">Manage and calculate electrical loads for St. Lucie Auto Facility.</p>
+      <p className="text-center mb-4">Manage and calculate electrical loads for P1 Motor Club Facility.</p>
 
       <div className="mb-4 space-y-2">
         <div className="flex items-center space-x-2">
