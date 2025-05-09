@@ -160,7 +160,7 @@ function Calculator() {
           <input
             type="text"
             id="unitDescription"
-            placeholder="e.g., Unit B2 – Paint Shop"
+            placeholder="e.g., Unit B2 – East Garage"
             className="w-full p-2 rounded border border-gray-300 text-black"
           />
         </div>
