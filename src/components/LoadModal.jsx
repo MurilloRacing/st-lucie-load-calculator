@@ -11,6 +11,7 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
     type: "Non-Continuous",
     is_motor: false,
     is_essential: false,
+    unit: "watts", // added
   });
 
   const [loading, setLoading] = useState(false);
@@ -25,6 +26,7 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
         type: editingLoad.type,
         is_motor: editingLoad.is_motor ?? editingLoad.isMotor ?? false,
         is_essential: editingLoad.is_essential ?? false,
+        unit: "watts", // default to watts on edit
       });
     }
   }, [editingLoad]);
@@ -42,7 +44,7 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
     setLoading(true);
     setError(null);
 
-    const { name, power, voltage, type, is_motor, is_essential } = form;
+    const { name, power, voltage, type, is_motor, is_essential, unit } = form;
 
     if (!name || !power || !voltage || !type) {
       setError("All fields are required.");
@@ -50,23 +52,30 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
       return;
     }
 
+    const watts = unit === "watts"
+      ? parseFloat(power)
+      : Math.round(parseFloat(power) * parseFloat(voltage));
+
     try {
       if (isEditing) {
-        const { error } = await supabase.from("Loads").update({
-          name,
-          power: parseInt(power),
-          voltage: parseInt(voltage),
-          type,
-          is_motor,
-          is_essential,
-        }).eq("id", editingLoad.id);
+        const { error } = await supabase
+          .from("Loads")
+          .update({
+            name,
+            power: watts,
+            voltage: parseInt(voltage),
+            type,
+            is_motor,
+            is_essential,
+          })
+          .eq("id", editingLoad.id);
 
         if (error) throw error;
       } else {
         const { error } = await supabase.from("Loads").insert([
           {
             name,
-            power: parseInt(power),
+            power: watts,
             voltage: parseInt(voltage),
             type,
             is_motor,
@@ -77,7 +86,7 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
         if (error) throw error;
       }
 
-      onLoadAdded(); // close and refresh list
+      onLoadAdded();
     } catch (err) {
       setError(err.message || "Something went wrong.");
     }
@@ -99,14 +108,34 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
           onChange={handleChange}
           className="w-full border p-2"
         />
-        <input
-          type="number"
-          name="power"
-          placeholder="Power (W)"
-          value={form.power}
-          onChange={handleChange}
-          className="w-full border p-2"
-        />
+
+        <div className="flex gap-2">
+          <input
+            type="number"
+            name="power"
+            placeholder={form.unit === "watts" ? "Power (W)" : "Current (A)"}
+            value={form.power}
+            onChange={handleChange}
+            className="w-full border p-2"
+          />
+          <select
+            name="unit"
+            value={form.unit}
+            onChange={handleChange}
+            className="border p-2"
+          >
+            <option value="watts">Watts</option>
+            <option value="amps">Amps</option>
+          </select>
+        </div>
+
+        {form.unit === "amps" && form.power && form.voltage && (
+          <p className="text-sm text-gray-600 mt-1">
+            Calculated: {form.power}A × {form.voltage}V ={" "}
+            {form.power * form.voltage}W
+          </p>
+        )}
+
         <input
           type="number"
           name="voltage"
@@ -115,6 +144,7 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
           onChange={handleChange}
           className="w-full border p-2"
         />
+
         <select
           name="type"
           value={form.type}
