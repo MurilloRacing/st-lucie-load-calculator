@@ -50,34 +50,36 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
       return;
     }
 
-    if (isEditing) {
-      // Update existing load
-      const { error } = await supabase.from("Loads").update({
-        name,
-        power: parseInt(power),
-        voltage: parseInt(voltage),
-        type,
-        is_motor,
-        is_essential,
-      }).eq("id", editingLoad.id);
-
-      if (error) setError(error.message);
-      else onLoadAdded();
-    } else {
-      // Insert new load
-      const { error } = await supabase.from("Loads").insert([
-        {
+    try {
+      if (isEditing) {
+        const { error } = await supabase.from("Loads").update({
           name,
           power: parseInt(power),
           voltage: parseInt(voltage),
           type,
           is_motor,
           is_essential,
-        },
-      ]);
+        }).eq("id", editingLoad.id);
 
-      if (error) setError(error.message);
-      else onLoadAdded();
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("Loads").insert([
+          {
+            name,
+            power: parseInt(power),
+            voltage: parseInt(voltage),
+            type,
+            is_motor,
+            is_essential,
+          },
+        ]);
+
+        if (error) throw error;
+      }
+
+      onLoadAdded(); // close and refresh list
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
     }
 
     setLoading(false);
@@ -122,6 +124,7 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
           <option value="Continuous">Continuous</option>
           <option value="Non-Continuous">Non-Continuous</option>
         </select>
+
         <label className="block">
           <input
             type="checkbox"
@@ -131,6 +134,7 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
           />
           <span className="ml-2">Is Motor Load</span>
         </label>
+
         <label className="block">
           <input
             type="checkbox"
@@ -140,7 +144,9 @@ const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
           />
           <span className="ml-2">Essential Load (auto-select)</span>
         </label>
-        {error && <p className="text-red-600">{error}</p>}
+
+        {error && <p className="text-red-600 text-sm">{error}</p>}
+
         <div className="flex justify-between">
           <button
             type="button"

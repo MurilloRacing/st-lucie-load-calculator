@@ -1,7 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
-const LoadList = ({ loads, selectedLoads, toggleLoad, editLoad, deleteLoad }) => {
+const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad }) => {
+  const [loads, setLoads] = useState([]);
+
+  useEffect(() => {
+    const fetchLoads = async () => {
+      const { data, error } = await supabase
+        .from("Loads")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching loads:", error);
+      } else {
+        setLoads(data);
+      }
+    };
+
+    fetchLoads();
+  }, [refreshTrigger]);
+
+  const toggleLoad = (load) => {
+    const alreadySelected = selectedLoads.some(l => l.id === load.id);
+    if (alreadySelected) {
+      setSelectedLoads(selectedLoads.filter(l => l.id !== load.id));
+    } else {
+      setSelectedLoads([...selectedLoads, load]);
+    }
+  };
+
+  const deleteLoad = async (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this load?");
+    if (!confirmed) return;
+
+    const { error } = await supabase.from("Loads").delete().eq("id", id);
+    if (error) {
+      console.error("Error deleting load:", error.message);
+    } else {
+      setLoads(prev => prev.filter(l => l.id !== id));
+      setSelectedLoads(prev => prev.filter(l => l.id !== id));
+    }
+  };
+
   return (
     <div className="bg-white rounded shadow p-4 mb-6">
       <h2 className="text-xl font-semibold mb-4">Load List</h2>
@@ -27,8 +69,8 @@ const LoadList = ({ loads, selectedLoads, toggleLoad, editLoad, deleteLoad }) =>
                   <td className="p-2">
                     <input
                       type="checkbox"
-                      checked={selectedLoads.includes(load.id)}
-                      onChange={() => toggleLoad(load.id)}
+                      checked={selectedLoads.some(l => l.id === load.id)}
+                      onChange={() => toggleLoad(load)}
                     />
                   </td>
                   <td className="p-2">
@@ -42,7 +84,7 @@ const LoadList = ({ loads, selectedLoads, toggleLoad, editLoad, deleteLoad }) =>
                   <td className="p-2">{load.power}</td>
                   <td className="p-2">{load.voltage}V</td>
                   <td className="p-2">{load.type}</td>
-                  <td className="p-2">{load.isMotor || load.is_motor ? "Yes" : "No"}</td>
+                  <td className="p-2">{load.is_motor ? "Yes" : "No"}</td>
                   <td className="p-2 text-right space-x-2">
                     <button
                       className="text-blue-600 hover:text-blue-800"

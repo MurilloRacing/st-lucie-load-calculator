@@ -1,21 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import LoadList from './LoadList';
 import Results from './Results';
 import LoadModal from './LoadModal';
 import html2pdf from 'html2pdf.js';
-
-const necessityIDs = []; // You can adjust this once loads are in the DB
+import { supabase } from '../lib/supabaseClient';
 
 function Calculator() {
   const [selectedLoads, setSelectedLoads] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingLoad, setEditingLoad] = useState(null); // <-- NEW
+  const [editingLoad, setEditingLoad] = useState(null);
   const [autoSelect, setAutoSelect] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(Date.now());
+  const [toastMessage, setToastMessage] = useState(null);
 
   const openModal = (load = null) => {
-    setEditingLoad(load); // <-- load is null for add, object for edit
+    setEditingLoad(load);
     setIsModalOpen(true);
   };
 
@@ -27,6 +27,8 @@ function Calculator() {
   const handleLoadAdded = () => {
     setRefreshTrigger(Date.now());
     closeModal();
+    setToastMessage('✅ Load saved successfully!');
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   const toggleLoad = (load) => {
@@ -45,12 +47,24 @@ function Calculator() {
     if (input) input.value = "";
   };
 
-  const handleAutoSelectChange = () => {
-    setAutoSelect(prev => {
-      const next = !prev;
-      setSelectedLoads([]); // You can implement fetching essentials here
-      return next;
-    });
+  const handleAutoSelectChange = async () => {
+    const next = !autoSelect;
+    setAutoSelect(next);
+
+    if (next) {
+      const { data, error } = await supabase
+        .from("Loads")
+        .select("*")
+        .eq("is_essential", true);
+
+      if (!error) {
+        setSelectedLoads(data);
+      } else {
+        console.error("Auto-select error:", error);
+      }
+    } else {
+      setSelectedLoads([]);
+    }
   };
 
   const exportToPDF = () => {
@@ -162,8 +176,14 @@ function Calculator() {
         selectedLoads={selectedLoads}
         setSelectedLoads={setSelectedLoads}
         refreshTrigger={refreshTrigger}
-        editLoad={openModal} // <-- connect edit button
+        editLoad={openModal}
       />
+
+      {toastMessage && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-lg z-50">
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }
