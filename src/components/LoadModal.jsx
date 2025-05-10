@@ -1,196 +1,107 @@
-import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabaseClient";
+import React, { useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
+import toast from 'react-hot-toast';
 
-const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
-  const isEditing = editingLoad !== null;
+const LoadModal = ({ onClose, onLoadSaved }) => {
+  const [name, setName] = useState('');
+  const [power, setPower] = useState('');
+  const [unit, setUnit] = useState('Watts'); // or 'Amps'
+  const [voltage, setVoltage] = useState('');
+  const [type, setType] = useState('Non-Continuous');
+  const [isMotor, setIsMotor] = useState(false);
 
-  const [form, setForm] = useState({
-    name: "",
-    power: "",
-    voltage: "",
-    type: "Non-Continuous",
-    is_motor: false,
-    is_essential: false,
-    unit: "watts", // added
-  });
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (isEditing) {
-      setForm({
-        name: editingLoad.name,
-        power: editingLoad.power,
-        voltage: editingLoad.voltage,
-        type: editingLoad.type,
-        is_motor: editingLoad.is_motor ?? editingLoad.isMotor ?? false,
-        is_essential: editingLoad.is_essential ?? false,
-        unit: "watts", // default to watts on edit
-      });
-    }
-  }, [editingLoad]);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+  const calculateWatts = () => {
+    if (unit === 'Watts') return parseFloat(power) || 0;
+    if (unit === 'Amps') return (parseFloat(power) || 0) * (parseFloat(voltage) || 0);
+    return 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    const wattValue = calculateWatts();
 
-    const { name, power, voltage, type, is_motor, is_essential, unit } = form;
+    const { error } = await supabase.from('loads').insert([{
+      name,
+      power: wattValue,
+      voltage: parseFloat(voltage),
+      type,
+      is_motor: isMotor,
+    }]);
 
-    if (!name || !power || !voltage || !type) {
-      setError("All fields are required.");
-      setLoading(false);
-      return;
+    if (error) {
+      toast.error('Error saving load.');
+      console.error('Supabase insert error:', error.message);
+    } else {
+      toast.success('Load saved successfully!');
+      onLoadSaved?.();
+      onClose();
     }
-
-    const watts = unit === "watts"
-      ? parseFloat(power)
-      : Math.round(parseFloat(power) * parseFloat(voltage));
-
-    try {
-      if (isEditing) {
-        const { error } = await supabase
-          .from("Loads")
-          .update({
-            name,
-            power: watts,
-            voltage: parseInt(voltage),
-            type,
-            is_motor,
-            is_essential,
-          })
-          .eq("id", editingLoad.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("Loads").insert([
-          {
-            name,
-            power: watts,
-            voltage: parseInt(voltage),
-            type,
-            is_motor,
-            is_essential,
-          },
-        ]);
-
-        if (error) throw error;
-      }
-
-      onLoadAdded();
-    } catch (err) {
-      setError(err.message || "Something went wrong.");
-    }
-
-    setLoading(false);
   };
 
   return (
-    <div className="p-4 bg-white rounded shadow-md">
-      <h2 className="text-xl font-bold mb-2">
-        {isEditing ? "Edit Load" : "Add New Load"}
-      </h2>
+    <div className="modal p-4 bg-white shadow-md rounded">
+      <h2 className="text-lg font-semibold mb-4">Add New Load</h2>
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
-          type="text"
-          name="name"
-          placeholder="Load Name"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full border p-2"
+          className="w-full p-2 border rounded"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
         />
 
         <div className="flex gap-2">
           <input
-            type="number"
-            name="power"
-            placeholder={form.unit === "watts" ? "Power (W)" : "Current (A)"}
-            value={form.power}
-            onChange={handleChange}
-            className="w-full border p-2"
+            className="flex-1 p-2 border rounded"
+            placeholder={unit}
+            value={power}
+            onChange={(e) => setPower(e.target.value)}
+            required
           />
           <select
-            name="unit"
-            value={form.unit}
-            onChange={handleChange}
-            className="border p-2"
+            className="border rounded p-2"
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
           >
-            <option value="watts">Watts</option>
-            <option value="amps">Amps</option>
+            <option>Watts</option>
+            <option>Amps</option>
           </select>
         </div>
 
-        {form.unit === "amps" && form.power && form.voltage && (
-          <p className="text-sm text-gray-600 mt-1">
-            Calculated: {form.power}A × {form.voltage}V ={" "}
-            {form.power * form.voltage}W
-          </p>
+        {unit === 'Amps' && (
+          <input
+            className="w-full p-2 border rounded"
+            placeholder="Voltage (required for Amps)"
+            value={voltage}
+            onChange={(e) => setVoltage(e.target.value)}
+            required
+          />
         )}
 
-        <input
-          type="number"
-          name="voltage"
-          placeholder="Voltage (V)"
-          value={form.voltage}
-          onChange={handleChange}
-          className="w-full border p-2"
-        />
-
         <select
-          name="type"
-          value={form.type}
-          onChange={handleChange}
-          className="w-full border p-2"
+          className="w-full p-2 border rounded"
+          value={type}
+          onChange={(e) => setType(e.target.value)}
         >
-          <option value="Continuous">Continuous</option>
           <option value="Non-Continuous">Non-Continuous</option>
+          <option value="Continuous">Continuous</option>
         </select>
 
-        <label className="block">
+        <label className="flex items-center gap-2">
           <input
             type="checkbox"
-            name="is_motor"
-            checked={form.is_motor}
-            onChange={handleChange}
+            checked={isMotor}
+            onChange={(e) => setIsMotor(e.target.checked)}
           />
-          <span className="ml-2">Is Motor Load</span>
+          Is Motor Load?
         </label>
 
-        <label className="block">
-          <input
-            type="checkbox"
-            name="is_essential"
-            checked={form.is_essential}
-            onChange={handleChange}
-          />
-          <span className="ml-2">Essential Load (auto-select)</span>
-        </label>
-
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-
-        <div className="flex justify-between">
-          <button
-            type="button"
-            onClick={onClose}
-            className="bg-gray-300 text-black px-4 py-2 rounded"
-          >
-            Cancel
+        <div className="flex justify-between mt-4">
+          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+            Save Load
           </button>
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-            disabled={loading}
-          >
-            {loading ? "Saving..." : isEditing ? "Update Load" : "Add Load"}
+          <button type="button" className="bg-gray-400 text-white px-4 py-2 rounded" onClick={onClose}>
+            Cancel
           </button>
         </div>
       </form>
