@@ -33,8 +33,12 @@ const LoadModal = ({ onClose, onLoadSaved }) => {
     }]);
 
     if (error) {
-      console.error('Supabase insert error:', error); // ✅ detailed console log
-      toast.error(`Error saving load: ${error?.message || 'Unknown error'}`);
+      console.error('Supabase insert error:', error);
+      toast.error(
+        error && typeof error === 'object' && error.message
+          ? `Error saving load: ${error.message}`
+          : 'Error saving load: Something went wrong.'
+      );
     } else {
       toast.success('Load saved successfully!');
       onLoadSaved?.();
