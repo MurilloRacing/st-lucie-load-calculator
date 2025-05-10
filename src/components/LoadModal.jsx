@@ -1,24 +1,30 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../lib/supabaseClient";
 
-const LoadModal = ({ closeModal, addLoad, updateLoad, editingLoad }) => {
+const LoadModal = ({ onClose, onLoadAdded, editingLoad = null }) => {
+  const isEditing = editingLoad !== null;
+
   const [form, setForm] = useState({
     name: "",
     power: "",
-    voltage: "120",
+    voltage: "",
     type: "Non-Continuous",
-    isMotor: false,
+    is_motor: false,
+    is_essential: false,
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    if (editingLoad) {
-      setForm(editingLoad);
-    } else {
+    if (isEditing) {
       setForm({
-        name: "",
-        power: "",
-        voltage: "120",
-        type: "Non-Continuous",
-        isMotor: false,
+        name: editingLoad.name,
+        power: editingLoad.power,
+        voltage: editingLoad.voltage,
+        type: editingLoad.type,
+        is_motor: editingLoad.is_motor ?? editingLoad.isMotor ?? false,
+        is_essential: editingLoad.is_essential ?? false,
       });
     }
   }, [editingLoad]);
@@ -31,99 +37,124 @@ const LoadModal = ({ closeModal, addLoad, updateLoad, editingLoad }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const load = {
-      ...form,
-      power: parseInt(form.power, 10),
-      voltage: parseInt(form.voltage, 10),
-    };
-    editingLoad ? updateLoad(load) : addLoad(load);
-    closeModal();
+    setLoading(true);
+    setError(null);
+
+    const { name, power, voltage, type, is_motor, is_essential } = form;
+
+    if (!name || !power || !voltage || !type) {
+      setError("All fields are required.");
+      setLoading(false);
+      return;
+    }
+
+    if (isEditing) {
+      // Update existing load
+      const { error } = await supabase.from("Loads").update({
+        name,
+        power: parseInt(power),
+        voltage: parseInt(voltage),
+        type,
+        is_motor,
+        is_essential,
+      }).eq("id", editingLoad.id);
+
+      if (error) setError(error.message);
+      else onLoadAdded();
+    } else {
+      // Insert new load
+      const { error } = await supabase.from("Loads").insert([
+        {
+          name,
+          power: parseInt(power),
+          voltage: parseInt(voltage),
+          type,
+          is_motor,
+          is_essential,
+        },
+      ]);
+
+      if (error) setError(error.message);
+      else onLoadAdded();
+    }
+
+    setLoading(false);
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto bg-white p-6 rounded shadow">
-      <h2 className="text-xl font-semibold mb-4">
-        {editingLoad ? "Edit Load" : "Add Load"}
+    <div className="p-4 bg-white rounded shadow-md">
+      <h2 className="text-xl font-bold mb-2">
+        {isEditing ? "Edit Load" : "Add New Load"}
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Name</label>
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Power (Watts)</label>
-          <input
-            name="power"
-            type="number"
-            value={form.power}
-            onChange={handleChange}
-            required
-            min={0}
-            step={100}
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Voltage</label>
-          <select
-            name="voltage"
-            value={form.voltage}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-          >
-            <option value="120">120V</option>
-            <option value="208">208V</option>
-            <option value="480">480V</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Load Type</label>
-          <select
-            name="type"
-            value={form.type}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-          >
-            <option value="Continuous">Continuous</option>
-            <option value="Non-Continuous">Non-Continuous</option>
-          </select>
-        </div>
-
-        <div className="flex items-center">
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <input
+          type="text"
+          name="name"
+          placeholder="Load Name"
+          value={form.name}
+          onChange={handleChange}
+          className="w-full border p-2"
+        />
+        <input
+          type="number"
+          name="power"
+          placeholder="Power (W)"
+          value={form.power}
+          onChange={handleChange}
+          className="w-full border p-2"
+        />
+        <input
+          type="number"
+          name="voltage"
+          placeholder="Voltage (V)"
+          value={form.voltage}
+          onChange={handleChange}
+          className="w-full border p-2"
+        />
+        <select
+          name="type"
+          value={form.type}
+          onChange={handleChange}
+          className="w-full border p-2"
+        >
+          <option value="Continuous">Continuous</option>
+          <option value="Non-Continuous">Non-Continuous</option>
+        </select>
+        <label className="block">
           <input
             type="checkbox"
-            name="isMotor"
-            checked={form.isMotor}
+            name="is_motor"
+            checked={form.is_motor}
             onChange={handleChange}
-            className="mr-2"
           />
-          <label className="text-sm">Is Motor Load?</label>
-        </div>
-
-        <div className="flex justify-end space-x-2 pt-4">
+          <span className="ml-2">Is Motor Load</span>
+        </label>
+        <label className="block">
+          <input
+            type="checkbox"
+            name="is_essential"
+            checked={form.is_essential}
+            onChange={handleChange}
+          />
+          <span className="ml-2">Essential Load (auto-select)</span>
+        </label>
+        {error && <p className="text-red-600">{error}</p>}
+        <div className="flex justify-between">
           <button
             type="button"
-            onClick={closeModal}
-            className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+            onClick={onClose}
+            className="bg-gray-300 text-black px-4 py-2 rounded"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+            disabled={loading}
           >
-            {editingLoad ? "Update" : "Add"}
+            {loading ? "Saving..." : isEditing ? "Update Load" : "Add Load"}
           </button>
         </div>
       </form>

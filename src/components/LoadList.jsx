@@ -31,11 +31,18 @@ const LoadList = ({ loads, selectedLoads, toggleLoad, editLoad, deleteLoad }) =>
                       onChange={() => toggleLoad(load.id)}
                     />
                   </td>
-                  <td className="p-2">{load.name}</td>
+                  <td className="p-2">
+                    {load.name}
+                    {load.is_essential && (
+                      <span className="ml-2 px-2 py-0.5 text-xs bg-green-600 text-white rounded-full">
+                        Essential
+                      </span>
+                    )}
+                  </td>
                   <td className="p-2">{load.power}</td>
                   <td className="p-2">{load.voltage}V</td>
                   <td className="p-2">{load.type}</td>
-                  <td className="p-2">{load.isMotor ? "Yes" : "No"}</td>
+                  <td className="p-2">{load.isMotor || load.is_motor ? "Yes" : "No"}</td>
                   <td className="p-2 text-right space-x-2">
                     <button
                       className="text-blue-600 hover:text-blue-800"
