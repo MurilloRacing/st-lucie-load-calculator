@@ -24,7 +24,7 @@ const LoadModal = ({ onClose, onLoadSaved }) => {
     const volts = voltage === 'custom' ? parseFloat(customVoltage) : parseFloat(voltage);
     const wattValue = calculateWatts();
 
-    const { error } = await supabase.from('loads').insert([{
+    const { error } = await supabase.from('Loads').insert([{
       name,
       power: wattValue,
       voltage: isNaN(volts) ? null : volts,
