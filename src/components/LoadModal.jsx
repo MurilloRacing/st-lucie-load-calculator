@@ -23,14 +23,14 @@ const LoadModal = ({ onClose, onLoadSaved }) => {
     const { error } = await supabase.from('loads').insert([{
       name,
       power: wattValue,
-      voltage: parseFloat(voltage),
+      voltage: parseFloat(voltage) || null,
       type,
       is_motor: isMotor,
     }]);
 
     if (error) {
-      toast.error('Error saving load.');
-      console.error('Supabase insert error:', error.message);
+      console.error('Supabase insert error:', error);
+      toast.error(`Error saving load: ${error.message}`);
     } else {
       toast.success('Load saved successfully!');
       onLoadSaved?.();
