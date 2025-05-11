@@ -103,6 +103,14 @@ function Calculator() {
 
       <p className="text-center mb-4">Manage and calculate electrical loads for P1 Motor Club Facility.</p>
 
+      <SaveLoadListControls
+        loads={selectedLoads}
+        onSaveSuccess={() => {
+          setToastMessage('✅ Load list saved!');
+          setTimeout(() => setToastMessage(null), 3000);
+        }}
+      />
+
       <div className="mb-4 space-y-2">
         <div className="flex items-center space-x-2">
           <input
@@ -129,14 +137,6 @@ function Calculator() {
           />
         </div>
       </div>
-
-      <SaveLoadListControls
-        loads={selectedLoads}
-        onSaveSuccess={() => {
-          setToastMessage('✅ Load list saved!');
-          setTimeout(() => setToastMessage(null), 3000);
-        }}
-      />
 
       <div className="flex justify-end mb-4 space-x-4">
         <button onClick={() => openModal()} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add Custom Load</button>
