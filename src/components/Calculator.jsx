@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; 
 import { Link } from 'react-router-dom';
 import LoadList from './LoadList';
 import Results from './Results';
@@ -136,16 +136,6 @@ function Calculator() {
         <button onClick={exportToPDF} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Export as PDF</button>
       </div>
 
-      {isModalOpen && (
-        <div className="mb-6 border border-gray-300 bg-white rounded p-4 shadow">
-          <LoadModal
-            onLoadAdded={handleLoadAdded}
-            onClose={closeModal}
-            editingLoad={editingLoad}
-          />
-        </div>
-      )}
-
       <div id="results-to-pdf" className="p-4 bg-white text-black">
         <h2 className="text-xl font-semibold mb-2">Selected Loads</h2>
         <table className="w-full border text-sm mb-6">
@@ -181,7 +171,20 @@ function Calculator() {
           setToastMessage('✅ Load list saved!');
           setTimeout(() => setToastMessage(null), 3000);
         }}
+        onLoadList={(loadedItems) => {
+          setSelectedLoads(loadedItems);
+        }}
       />
+
+      {isModalOpen && (
+        <div className="mb-6 border border-gray-300 bg-white rounded p-4 shadow">
+          <LoadModal
+            onLoadAdded={handleLoadAdded}
+            onClose={closeModal}
+            editingLoad={editingLoad}
+          />
+        </div>
+      )}
 
       <LoadList
         selectedLoads={selectedLoads}
