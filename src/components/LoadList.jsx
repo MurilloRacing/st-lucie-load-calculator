@@ -197,6 +197,11 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
               ))}
             </tbody>
           </table>
+          {editingRowId && (
+            <div className="mt-3 text-sm text-blue-700 bg-blue-100 p-2 rounded">
+              Editing load: <strong>{editedRow.name}</strong>. Click ✅ to save your changes.
+            </div>
+          )}
         </div>
       )}
     </div>
