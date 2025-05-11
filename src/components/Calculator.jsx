@@ -103,14 +103,6 @@ function Calculator() {
 
       <p className="text-center mb-4">Manage and calculate electrical loads for P1 Motor Club Facility.</p>
 
-      <SaveLoadListControls
-        loads={selectedLoads}
-        onSaveSuccess={() => {
-          setToastMessage('✅ Load list saved!');
-          setTimeout(() => setToastMessage(null), 3000);
-        }}
-      />
-
       <div className="mb-4 space-y-2">
         <div className="flex items-center space-x-2">
           <input
@@ -180,6 +172,16 @@ function Calculator() {
         </table>
         <Results selectedLoads={selectedLoads} />
       </div>
+
+      <div className="text-white text-xl font-semibold mb-2">Load List</div>
+
+      <SaveLoadListControls
+        loads={selectedLoads}
+        onSaveSuccess={() => {
+          setToastMessage('✅ Load list saved!');
+          setTimeout(() => setToastMessage(null), 3000);
+        }}
+      />
 
       <LoadList
         selectedLoads={selectedLoads}
