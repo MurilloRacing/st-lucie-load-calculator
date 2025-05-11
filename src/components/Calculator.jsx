@@ -128,12 +128,10 @@ function Calculator() {
             className="w-full p-2 rounded border border-gray-300 text-black"
           />
         </div>
-      </div>
 
-      <div className="flex justify-end mb-4 space-x-4">
-        <button onClick={() => openModal()} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add Custom Load</button>
-        <button onClick={handleReset} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset to Default</button>
-        <button onClick={exportToPDF} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Export as PDF</button>
+        <div className="flex justify-end gap-4">
+          <button onClick={exportToPDF} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Export as PDF</button>
+        </div>
       </div>
 
       <div id="results-to-pdf" className="p-4 bg-white text-black">
@@ -164,6 +162,11 @@ function Calculator() {
       </div>
 
       <div className="text-white text-xl font-semibold mb-2">Load List</div>
+
+      <div className="flex justify-end mb-4 gap-4">
+        <button onClick={() => openModal()} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add Custom Load</button>
+        <button onClick={handleReset} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset to Default</button>
+      </div>
 
       <SaveLoadListControls
         loads={selectedLoads}
