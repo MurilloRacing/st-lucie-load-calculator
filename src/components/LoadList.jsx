@@ -81,6 +81,11 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
     }
   };
 
+  const handleCancelEdit = () => {
+    setEditingRowId(null);
+    setEditedRow({});
+  };
+
   return (
     <div className="bg-white rounded shadow p-4 mb-6">
       <h2 className="text-xl font-semibold mb-4">Load List</h2>
@@ -172,12 +177,20 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
                   </td>
                   <td className="p-2 text-right space-x-2">
                     {editingRowId === load.id ? (
-                      <button
-                        className="text-green-600 hover:text-green-800"
-                        onClick={() => handleSaveRow(load.id)}
-                      >
-                        ✅
-                      </button>
+                      <>
+                        <button
+                          className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                          onClick={() => handleSaveRow(load.id)}
+                        >
+                          Save
+                        </button>
+                        <button
+                          className="bg-gray-400 text-white px-2 py-1 rounded hover:bg-gray-500 ml-2"
+                          onClick={handleCancelEdit}
+                        >
+                          Cancel
+                        </button>
+                      </>
                     ) : (
                       <button
                         className="text-blue-600 hover:text-blue-800"
@@ -197,11 +210,6 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
               ))}
             </tbody>
           </table>
-          {editingRowId && (
-            <div className="mt-3 text-sm text-blue-700 bg-blue-100 p-2 rounded">
-              Editing load: <strong>{editedRow.name}</strong>. Click ✅ to save your changes.
-            </div>
-          )}
         </div>
       )}
     </div>
