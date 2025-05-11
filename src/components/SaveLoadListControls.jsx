@@ -17,7 +17,7 @@ const SaveLoadListControls = ({ loads, onSaveSuccess, onLoadList }) => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching lists:', error);
+        console.error('Error fetching saved lists:', error);
         toast.error('Failed to fetch saved lists.');
       } else {
         setSavedLists(data);
@@ -46,7 +46,10 @@ const SaveLoadListControls = ({ loads, onSaveSuccess, onLoadList }) => {
   };
 
   const handleSave = async () => {
-    if (!listName) return;
+    if (!listName.trim()) {
+      toast.error('List name is required.');
+      return;
+    }
 
     const { data: listData, error: listError } = await supabase
       .from('saved_load_lists')
@@ -95,7 +98,11 @@ const SaveLoadListControls = ({ loads, onSaveSuccess, onLoadList }) => {
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-4">
-      <select value={selectedListId} onChange={handleListSelect} className="p-2 rounded border">
+      <select
+        value={selectedListId}
+        onChange={handleListSelect}
+        className="p-2 rounded border"
+      >
         <option value="">Select Existing Load List</option>
         {savedLists.map((list) => (
           <option key={list.id} value={list.id}>{list.name}</option>
