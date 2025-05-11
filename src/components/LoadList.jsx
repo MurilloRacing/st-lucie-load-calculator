@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad }) => {
@@ -179,16 +179,16 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
                     {editingRowId === load.id ? (
                       <>
                         <button
-                          className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                          className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
                           onClick={() => handleSaveRow(load.id)}
                         >
-                          Save
+                          <FaSave /> Save
                         </button>
                         <button
-                          className="bg-gray-400 text-white px-2 py-1 rounded hover:bg-gray-500 ml-2"
+                          className="flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500 ml-2"
                           onClick={handleCancelEdit}
                         >
-                          Cancel
+                          <FaTimes /> Cancel
                         </button>
                       </>
                     ) : (
