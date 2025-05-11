@@ -1,131 +1,135 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
-import toast from "react-hot-toast";
+import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
+import toast from 'react-hot-toast';
 
-const SaveLoadListControls = ({ loads, onSaveSuccess }) => {
-  const [existingLists, setExistingLists] = useState([]);
-  const [selectedListId, setSelectedListId] = useState("");
-  const [newListName, setNewListName] = useState("");
-  const [buildingId, setBuildingId] = useState("");
-  const [spaceNumber, setSpaceNumber] = useState("");
-  const [isEdited, setIsEdited] = useState(false);
+const SaveLoadListControls = ({ loads, onSaveSuccess, onLoadList }) => {
+  const [listName, setListName] = useState('');
+  const [buildingId, setBuildingId] = useState('');
+  const [spaceNumber, setSpaceNumber] = useState('');
+  const [savedLists, setSavedLists] = useState([]);
+  const [selectedListId, setSelectedListId] = useState('');
 
   useEffect(() => {
     const fetchLists = async () => {
-      const { data, error } = await supabase.from("saved_load_lists").select("*");
+      const { data, error } = await supabase
+        .from('saved_load_lists')
+        .select('*')
+        .order('created_at', { ascending: false });
+
       if (error) {
-        console.error("Error fetching lists:", error);
+        console.error('Error fetching lists:', error);
+        toast.error('Failed to fetch saved lists.');
       } else {
-        setExistingLists(data);
+        setSavedLists(data);
       }
     };
+
     fetchLists();
   }, []);
 
-  const handleSave = async () => {
-    if (!newListName && !selectedListId) {
-      toast.error("Please select or name a list.");
-      return;
-    }
+  const handleListSelect = async (e) => {
+    const listId = e.target.value;
+    setSelectedListId(listId);
+    if (!listId) return;
 
-    let listId = selectedListId;
+    const { data, error } = await supabase
+      .from('saved_load_items')
+      .select('*')
+      .eq('list_id', listId);
 
-    if (!listId) {
-      // Create new list first
-      const { data, error } = await supabase
-        .from("saved_load_lists")
-        .insert([
-          {
-            name: newListName,
-            building_id: buildingId,
-            space_number: spaceNumber,
-            user_id: null // Replace with actual user_id if using auth
-          }
-        ])
-        .select()
-        .single();
-
-      if (error) {
-        console.error("List creation failed:", error);
-        toast.error("Failed to save list.");
-        return;
-      }
-
-      listId = data.id;
-    }
-
-    // Insert items
-    const listItems = loads.map((l) => ({
-      list_id: listId,
-      name: l.name,
-      power: l.power,
-      voltage: l.voltage,
-      type: l.type,
-      is_motor: l.is_motor
-    }));
-
-    const { error: itemsError } = await supabase.from("saved_load_items").insert(listItems);
-
-    if (itemsError) {
-      console.error("Failed to save items:", itemsError);
-      toast.error("Could not save list items.");
+    if (error) {
+      console.error('Failed to load list:', error);
+      toast.error('Error loading list.');
     } else {
-      toast.success("Load list saved successfully!");
-      onSaveSuccess?.();
-      setIsEdited(false);
+      onLoadList?.(data);
     }
   };
 
-  useEffect(() => {
-    setIsEdited(true);
-  }, [loads]);
+  const handleSave = async () => {
+    if (!listName) return;
+
+    const { data: listData, error: listError } = await supabase
+      .from('saved_load_lists')
+      .insert([
+        {
+          name: listName,
+          building_id: buildingId,
+          space_number: spaceNumber,
+          user_id: null,
+        },
+      ])
+      .select()
+      .single();
+
+    if (listError) {
+      console.error('List creation failed:', listError);
+      toast.error('Failed to create list.');
+      return;
+    }
+
+    const items = loads.map((load) => ({
+      list_id: listData.id,
+      name: load.name,
+      power: load.power,
+      voltage: load.voltage,
+      type: load.type,
+      is_motor: load.is_motor,
+    }));
+
+    const { error: itemError } = await supabase
+      .from('saved_load_items')
+      .insert(items);
+
+    if (itemError) {
+      console.error('Items insert error:', itemError);
+      toast.error('Failed to save load items.');
+    } else {
+      toast.success('Load list saved!');
+      setListName('');
+      setBuildingId('');
+      setSpaceNumber('');
+      setSelectedListId('');
+      onSaveSuccess?.();
+    }
+  };
 
   return (
-    <div className="bg-gray-50 border p-4 rounded mb-4">
-      <div className="flex flex-wrap gap-4 mb-4">
-        <select
-          className="border p-2 rounded"
-          value={selectedListId}
-          onChange={(e) => setSelectedListId(e.target.value)}
-        >
-          <option value="">Select Existing Load List</option>
-          {existingLists.map((list) => (
-            <option key={list.id} value={list.id}>{list.name}</option>
-          ))}
-        </select>
+    <div className="flex flex-wrap items-center gap-2 mb-4">
+      <select value={selectedListId} onChange={handleListSelect} className="p-2 rounded border">
+        <option value="">Select Existing Load List</option>
+        {savedLists.map((list) => (
+          <option key={list.id} value={list.id}>{list.name}</option>
+        ))}
+      </select>
 
-        <input
-          type="text"
-          className="border p-2 rounded"
-          placeholder="New List Name"
-          value={newListName}
-          onChange={(e) => setNewListName(e.target.value)}
-        />
-
-        <input
-          type="text"
-          className="border p-2 rounded"
-          placeholder="Building ID"
-          value={buildingId}
-          onChange={(e) => setBuildingId(e.target.value)}
-        />
-
-        <input
-          type="text"
-          className="border p-2 rounded"
-          placeholder="Space Number"
-          value={spaceNumber}
-          onChange={(e) => setSpaceNumber(e.target.value)}
-        />
-
-        <button
-          onClick={handleSave}
-          className={`px-4 py-2 text-white rounded ${isEdited ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
-          disabled={!isEdited}
-        >
-          Save Load List
-        </button>
-      </div>
+      <input
+        type="text"
+        placeholder="New List Name"
+        value={listName}
+        onChange={(e) => setListName(e.target.value)}
+        className="p-2 border rounded"
+      />
+      <input
+        type="text"
+        placeholder="Building ID"
+        value={buildingId}
+        onChange={(e) => setBuildingId(e.target.value)}
+        className="p-2 border rounded"
+      />
+      <input
+        type="text"
+        placeholder="Space Number"
+        value={spaceNumber}
+        onChange={(e) => setSpaceNumber(e.target.value)}
+        className="p-2 border rounded"
+      />
+      <button
+        onClick={handleSave}
+        className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+        disabled={!listName || loads.length === 0}
+      >
+        Save Load List
+      </button>
     </div>
   );
 };
