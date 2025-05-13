@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import toast from 'react-hot-toast';
+
 
 export default function CreateTemplateModal({ onClose, onCreated }) {
   const [name, setName] = useState('');
