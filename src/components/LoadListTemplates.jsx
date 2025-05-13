@@ -1,26 +1,28 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import toast from 'react-hot-toast';
+import CreateTemplateModal from './CreateTemplateModal';
 
 export default function LoadListTemplates() {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [items, setItems] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+
+  const fetchTemplates = async () => {
+    const { data, error } = await supabase
+      .from('load_list_templates')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      toast.error('Failed to fetch templates');
+    } else {
+      setTemplates(data);
+    }
+  };
 
   useEffect(() => {
-    const fetchTemplates = async () => {
-      const { data, error } = await supabase
-        .from('load_list_templates')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        toast.error('Failed to fetch templates');
-      } else {
-        setTemplates(data);
-      }
-    };
-
     fetchTemplates();
   }, []);
 
@@ -40,8 +42,16 @@ export default function LoadListTemplates() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">📋 Load List Templates</h1>
-      
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">📋 Load List Templates</h1>
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          ➕ New Template
+        </button>
+      </div>
+
       <ul className="space-y-2 mb-6">
         {templates.map((tpl) => (
           <li key={tpl.id} className="flex items-center justify-between border p-3 rounded bg-white shadow-sm">
@@ -84,6 +94,13 @@ export default function LoadListTemplates() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {showModal && (
+        <CreateTemplateModal
+          onClose={() => setShowModal(false)}
+          onCreated={fetchTemplates}
+        />
       )}
     </div>
   );
