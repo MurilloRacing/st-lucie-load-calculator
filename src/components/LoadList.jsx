@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
-import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
-import toast from "react-hot-toast";
+import React, { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 const LoadList = ({ loads, setLoads, templateId }) => {
   const [editingRowId, setEditingRowId] = useState(null);
@@ -10,14 +10,14 @@ const LoadList = ({ loads, setLoads, templateId }) => {
   useEffect(() => {
     const fetchTemplateLoads = async () => {
       const { data, error } = await supabase
-        .from("load_list_items")
-        .select("*")
-        .eq("list_id", templateId)
-        .order("created_at", { ascending: true });
+        .from('load_list_items')
+        .select('*')
+        .eq('list_id', templateId)
+        .order('created_at', { ascending: true });
 
       if (error) {
-        console.error("Error fetching template loads:", error);
-        toast.error("Failed to load items.");
+        console.error('Error fetching template loads:', error);
+        toast.error('Failed to load items.');
       } else {
         setLoads(data);
       }
@@ -27,16 +27,16 @@ const LoadList = ({ loads, setLoads, templateId }) => {
   }, [templateId, setLoads]);
 
   const deleteLoad = async (id) => {
-    const confirmed = window.confirm("Delete this load?");
+    const confirmed = window.confirm('Delete this load?');
     if (!confirmed) return;
 
-    const { error } = await supabase.from("load_list_items").delete().eq("id", id);
+    const { error } = await supabase.from('load_list_items').delete().eq('id', id);
     if (error) {
-      console.error("Delete error:", error);
-      toast.error("Failed to delete load.");
+      console.error('Delete error:', error);
+      toast.error('Failed to delete load.');
     } else {
       setLoads((prev) => prev.filter((l) => l.id !== id));
-      toast.success("Load deleted");
+      toast.success('Load deleted');
     }
   };
 
@@ -51,7 +51,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
 
   const handleSaveRow = async (id) => {
     const { error } = await supabase
-      .from("load_list_items")
+      .from('load_list_items')
       .update({
         name: editedRow.name,
         power: editedRow.power,
@@ -59,16 +59,18 @@ const LoadList = ({ loads, setLoads, templateId }) => {
         type: editedRow.type,
         is_motor: editedRow.is_motor,
       })
-      .eq("id", id);
+      .eq('id', id);
 
     if (error) {
-      console.error("Update failed:", error);
-      toast.error("Failed to update load.");
+      console.error('Update failed:', error);
+      toast.error('Failed to update load.');
     } else {
-      toast.success("Load updated!");
+      toast.success('Load updated!');
       setEditingRowId(null);
       setEditedRow({});
-      setLoads((prev) => prev.map((l) => (l.id === id ? { ...l, ...editedRow } : l)));
+      setLoads((prev) =>
+        prev.map((l) => (l.id === id ? { ...l, ...editedRow } : l))
+      );
     }
   };
 
@@ -84,9 +86,9 @@ const LoadList = ({ loads, setLoads, templateId }) => {
         <p className="text-gray-500">No loads defined for this template.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full table-auto border-collapse">
+          <table className="w-full table-auto border-collapse text-sm">
             <thead>
-              <tr className="bg-gray-100 text-left text-sm">
+              <tr className="bg-gray-100 text-left">
                 <th className="p-2">Name</th>
                 <th className="p-2">Power (W)</th>
                 <th className="p-2">Voltage</th>
@@ -103,7 +105,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                       <input
                         className="w-full border rounded p-1"
                         value={editedRow.name}
-                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
                       />
                     ) : (
                       load.name
@@ -115,7 +117,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                         type="number"
                         className="w-full border rounded p-1"
                         value={editedRow.power}
-                        onChange={(e) => handleInputChange("power", e.target.value)}
+                        onChange={(e) => handleInputChange('power', e.target.value)}
                       />
                     ) : (
                       load.power
@@ -127,7 +129,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                         type="number"
                         className="w-full border rounded p-1"
                         value={editedRow.voltage}
-                        onChange={(e) => handleInputChange("voltage", e.target.value)}
+                        onChange={(e) => handleInputChange('voltage', e.target.value)}
                       />
                     ) : (
                       `${load.voltage}V`
@@ -138,7 +140,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                       <select
                         className="w-full border rounded p-1"
                         value={editedRow.type}
-                        onChange={(e) => handleInputChange("type", e.target.value)}
+                        onChange={(e) => handleInputChange('type', e.target.value)}
                       >
                         <option value="Non-Continuous">Non-Continuous</option>
                         <option value="Continuous">Continuous</option>
@@ -152,23 +154,27 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                       <input
                         type="checkbox"
                         checked={editedRow.is_motor}
-                        onChange={(e) => handleInputChange("is_motor", e.target.checked)}
+                        onChange={(e) =>
+                          handleInputChange('is_motor', e.target.checked)
+                        }
                       />
+                    ) : load.is_motor ? (
+                      'Yes'
                     ) : (
-                      load.is_motor ? "Yes" : "No"
+                      'No'
                     )}
                   </td>
                   <td className="p-2 text-right space-x-2">
                     {editingRowId === load.id ? (
                       <>
                         <button
-                          className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                          className="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
                           onClick={() => handleSaveRow(load.id)}
                         >
                           <FaSave /> Save
                         </button>
                         <button
-                          className="flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500 ml-2"
+                          className="inline-flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500 ml-2"
                           onClick={handleCancelEdit}
                         >
                           <FaTimes /> Cancel
