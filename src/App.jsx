@@ -1,13 +1,20 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 import Home from './components/Home';
-import Calculator from './components/Calculator';         // Existing calculator
+import Calculator from './components/Calculator';
 
-import NewCalculator from './components/NewCalculator';   // Modular version
-import SavedLists from './components/SavedLists';         // Saved estimates
-import LoadListTemplates from './components/LoadListTemplates'; // NEW: Load List Template Manager
-import Admin from './components/Admin';                   // Optional admin view
+import NewCalculator from './components/NewCalculator';
+import SavedLists from './components/SavedLists';
+import LoadListTemplates from './components/LoadListTemplates';
+import TemplateEditor from './components/TemplateEditor'; // Add this import
+import Admin from './components/Admin';
 
 import './index.css';
+
+// Wrapper to extract route params for TemplateEditor
+const TemplateEditorWrapper = () => {
+  const { templateId } = useParams();
+  return <TemplateEditor templateId={templateId} />;
+};
 
 function App() {
   const location = useLocation();
@@ -21,6 +28,7 @@ function App() {
         <Route path="/new" element={<NewCalculator />} />
         <Route path="/saved-lists" element={<SavedLists />} />
         <Route path="/load-lists" element={<LoadListTemplates />} />
+        <Route path="/load-lists/:templateId" element={<TemplateEditorWrapper />} />
         <Route path="/admin" element={<Admin />} />
         <Route
           path="*"

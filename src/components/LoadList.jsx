@@ -3,50 +3,40 @@ import { supabase } from "../lib/supabaseClient";
 import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
 import toast from "react-hot-toast";
 
-const LoadList = ({ loads, setLoads }) => {
-  const [availableLoads, setAvailableLoads] = useState([]);
+const LoadList = ({ loads, setLoads, templateId }) => {
   const [editingRowId, setEditingRowId] = useState(null);
   const [editedRow, setEditedRow] = useState({});
 
   useEffect(() => {
-    const fetchLoads = async () => {
+    const fetchTemplateLoads = async () => {
       const { data, error } = await supabase
-        .from("Loads")
+        .from("load_list_items")
         .select("*")
+        .eq("list_id", templateId)
         .order("created_at", { ascending: true });
 
       if (error) {
-        console.error("Error fetching loads:", error);
-        toast.error("Failed to load default loads.");
+        console.error("Error fetching template loads:", error);
+        toast.error("Failed to load items.");
       } else {
-        setAvailableLoads(data);
+        setLoads(data);
       }
     };
 
-    fetchLoads();
-  }, []);
-
-  const toggleLoad = (load) => {
-    const alreadySelected = loads.some((l) => l.id === load.id);
-    if (alreadySelected) {
-      setLoads(loads.filter((l) => l.id !== load.id));
-    } else {
-      setLoads([...loads, load]);
-    }
-  };
+    if (templateId) fetchTemplateLoads();
+  }, [templateId, setLoads]);
 
   const deleteLoad = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this load?");
+    const confirmed = window.confirm("Delete this load?");
     if (!confirmed) return;
 
-    const { error } = await supabase.from("Loads").delete().eq("id", id);
+    const { error } = await supabase.from("load_list_items").delete().eq("id", id);
     if (error) {
-      console.error("Error deleting load:", error.message);
-      toast.error("Delete failed.");
+      console.error("Delete error:", error);
+      toast.error("Failed to delete load.");
     } else {
-      setAvailableLoads((prev) => prev.filter((l) => l.id !== id));
       setLoads((prev) => prev.filter((l) => l.id !== id));
-      toast.success("Load deleted.");
+      toast.success("Load deleted");
     }
   };
 
@@ -61,7 +51,7 @@ const LoadList = ({ loads, setLoads }) => {
 
   const handleSaveRow = async (id) => {
     const { error } = await supabase
-      .from("Loads")
+      .from("load_list_items")
       .update({
         name: editedRow.name,
         power: editedRow.power,
@@ -78,9 +68,7 @@ const LoadList = ({ loads, setLoads }) => {
       toast.success("Load updated!");
       setEditingRowId(null);
       setEditedRow({});
-      setAvailableLoads((prev) =>
-        prev.map((l) => (l.id === id ? { ...l, ...editedRow } : l))
-      );
+      setLoads((prev) => prev.map((l) => (l.id === id ? { ...l, ...editedRow } : l)));
     }
   };
 
@@ -91,15 +79,14 @@ const LoadList = ({ loads, setLoads }) => {
 
   return (
     <div className="bg-white rounded shadow p-4 mb-6">
-      <h2 className="text-xl font-semibold mb-4">📂 Available Loads</h2>
-      {availableLoads.length === 0 ? (
-        <p className="text-gray-500">No loads available.</p>
+      <h2 className="text-xl font-semibold mb-4">📝 Template Items</h2>
+      {loads.length === 0 ? (
+        <p className="text-gray-500">No loads defined for this template.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-gray-100 text-left text-sm">
-                <th className="p-2">Select</th>
                 <th className="p-2">Name</th>
                 <th className="p-2">Power (W)</th>
                 <th className="p-2">Voltage</th>
@@ -109,15 +96,8 @@ const LoadList = ({ loads, setLoads }) => {
               </tr>
             </thead>
             <tbody>
-              {availableLoads.map((load) => (
+              {loads.map((load) => (
                 <tr key={load.id} className="border-t hover:bg-gray-50">
-                  <td className="p-2">
-                    <input
-                      type="checkbox"
-                      checked={loads.some((l) => l.id === load.id)}
-                      onChange={() => toggleLoad(load)}
-                    />
-                  </td>
                   <td className="p-2">
                     {editingRowId === load.id ? (
                       <input
@@ -132,8 +112,8 @@ const LoadList = ({ loads, setLoads }) => {
                   <td className="p-2">
                     {editingRowId === load.id ? (
                       <input
-                        className="w-full border rounded p-1"
                         type="number"
+                        className="w-full border rounded p-1"
                         value={editedRow.power}
                         onChange={(e) => handleInputChange("power", e.target.value)}
                       />
@@ -144,8 +124,8 @@ const LoadList = ({ loads, setLoads }) => {
                   <td className="p-2">
                     {editingRowId === load.id ? (
                       <input
-                        className="w-full border rounded p-1"
                         type="number"
+                        className="w-full border rounded p-1"
                         value={editedRow.voltage}
                         onChange={(e) => handleInputChange("voltage", e.target.value)}
                       />
@@ -172,9 +152,7 @@ const LoadList = ({ loads, setLoads }) => {
                       <input
                         type="checkbox"
                         checked={editedRow.is_motor}
-                        onChange={(e) =>
-                          handleInputChange("is_motor", e.target.checked)
-                        }
+                        onChange={(e) => handleInputChange("is_motor", e.target.checked)}
                       />
                     ) : (
                       load.is_motor ? "Yes" : "No"
