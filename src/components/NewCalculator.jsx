@@ -3,7 +3,7 @@ import UnitInfoHeader from './UnitInfoHeader';
 import LoadList from './LoadList';
 import Results from './Results';
 import SaveLoadListControls from './SaveLoadListControls';
-import ExportPDFButton from './ExportPDFButton'; // ⬅️ NEW
+import ExportPDFButton from './ExportPDFButton';
 
 export default function NewCalculator() {
   const [unitName, setUnitName] = useState('');
@@ -32,7 +32,6 @@ export default function NewCalculator() {
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-3xl font-bold text-center mb-4">🛠️ New Load Calculator</h1>
-
       {/* 📄 Export PDF Button */}
       <ExportPDFButton
         unitName={unitName}
@@ -40,7 +39,6 @@ export default function NewCalculator() {
         spaceNumber={spaceNumber}
         loads={loads}
       />
-
       {/* 🧾 Exportable Content */}
       <div id="export-content" className="space-y-6">
         <UnitInfoHeader
@@ -51,11 +49,9 @@ export default function NewCalculator() {
           spaceNumber={spaceNumber}
           setSpaceNumber={setSpaceNumber}
         />
-
         <LoadList loads={loads} setLoads={setLoads} />
         <Results loads={loads} />
       </div>
-
       <SaveLoadListControls
         loads={loads}
         onSaveSuccess={() => console.log('✅ List Saved')}
