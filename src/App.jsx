@@ -1,11 +1,11 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Home from './components/Home';
-import Calculator from './components/Calculator'; // Existing live version
+import Calculator from './components/Calculator';         // Existing calculator
 
-// Phase 2 placeholder imports – create these in components folder for now
-import NewCalculator from './components/NewCalculator'; // Make this soon
-import SavedLists from './components/SavedLists';       // Make this soon
-import Admin from './components/Admin';                 // Optional admin
+import NewCalculator from './components/NewCalculator';   // Modular version
+import SavedLists from './components/SavedLists';         // Saved estimates
+import LoadListTemplates from './components/LoadListTemplates'; // NEW: Load List Template Manager
+import Admin from './components/Admin';                   // Optional admin view
 
 import './index.css';
 
@@ -20,6 +20,7 @@ function App() {
         <Route path="/calculator" element={<Calculator />} />
         <Route path="/new" element={<NewCalculator />} />
         <Route path="/saved-lists" element={<SavedLists />} />
+        <Route path="/load-lists" element={<LoadListTemplates />} />
         <Route path="/admin" element={<Admin />} />
         <Route
           path="*"
@@ -38,3 +39,4 @@ function App() {
 }
 
 export default App;
+
