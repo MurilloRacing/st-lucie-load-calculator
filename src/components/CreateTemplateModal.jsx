@@ -1,60 +1,128 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import toast from 'react-hot-toast';
 
+const CreateTemplateModal = ({ templateId, onLoadAdded }) => {
+  const [form, setForm] = useState({
+    name: '',
+    power: '',
+    voltage: '',
+    is_motor: false,
+    useAmps: false,
+    amps: ''
+  });
 
-export default function CreateTemplateModal({ onClose, onCreated }) {
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
+  const handleChange = (field, value) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
 
-  const handleSave = async () => {
-    if (!name || !category) {
-      toast.error("Name and category are required.");
-      return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    let power = Number(form.power);
+
+    if (form.useAmps) {
+      const amps = parseFloat(form.amps);
+      const volts = parseFloat(form.voltage);
+      if (isNaN(amps) || isNaN(volts)) {
+        toast.error('Invalid amps or voltage');
+        return;
+      }
+      power = amps * volts;
     }
 
-    const { error } = await supabase
-      .from('load_list_templates')
-      .insert([{ name, category }]);
+    const { data, error } = await supabase
+      .from('load_list_items')
+      .insert({
+        list_id: templateId,
+        name: form.name,
+        power,
+        voltage: form.voltage,
+        type: 'Non-Continuous',
+        is_motor: form.is_motor
+      });
 
     if (error) {
-      toast.error("Failed to create template.");
-      console.error(error);
+      console.error('Insert failed:', error);
+      toast.error('Failed to create load.');
     } else {
-      toast.success("Template created!");
-      onCreated(); // trigger refresh
-      onClose();   // close modal
+      toast.success('Load created!');
+      onLoadAdded();
+      setForm({
+        name: '',
+        power: '',
+        voltage: '',
+        is_motor: false,
+        useAmps: false,
+        amps: ''
+      });
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded shadow-lg p-6 w-96">
-        <h2 className="text-xl font-bold mb-4">➕ New Load List Template</h2>
-
-        <label className="block text-sm mb-1">Template Name</label>
+    <form className="mb-6" onSubmit={handleSubmit}>
+      <h2 className="text-lg font-semibold mb-2">➕ Add Custom Load</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <input
-          className="w-full p-2 border rounded mb-3"
-          placeholder="e.g., Office Default"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          className="border rounded p-2"
+          placeholder="Load Name"
+          value={form.name}
+          onChange={(e) => handleChange('name', e.target.value)}
+          required
+        />
+        <input
+          className="border rounded p-2"
+          placeholder="Voltage (e.g. 120)"
+          value={form.voltage}
+          onChange={(e) => handleChange('voltage', e.target.value)}
+          required
         />
 
-        <label className="block text-sm mb-1">Category</label>
-        <input
-          className="w-full p-2 border rounded mb-4"
-          placeholder="e.g., Office, Auto Shop"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        />
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={form.useAmps}
+            onChange={(e) => handleChange('useAmps', e.target.checked)}
+          />
+          <label>Use Amps Instead of Watts</label>
+        </div>
 
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="text-gray-600 hover:underline">Cancel</button>
-          <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Save
-          </button>
+        {form.useAmps ? (
+          <input
+            className="border rounded p-2"
+            placeholder="Amps"
+            value={form.amps}
+            onChange={(e) => handleChange('amps', e.target.value)}
+            required
+          />
+        ) : (
+          <input
+            className="border rounded p-2"
+            placeholder="Power (Watts)"
+            value={form.power}
+            onChange={(e) => handleChange('power', e.target.value)}
+            required
+          />
+        )}
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={form.is_motor}
+            onChange={(e) => handleChange('is_motor', e.target.checked)}
+          />
+          <label>Is Motor?</label>
         </div>
       </div>
-    </div>
+
+      <button
+        type="submit"
+        className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+      >
+        Save Load
+      </button>
+    </form>
   );
-}
+};
+
+export default CreateTemplateModal;
