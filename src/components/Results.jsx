@@ -1,17 +1,17 @@
 import React from "react";
 
-const Results = ({ selectedLoads = [] }) => {
-  if (!Array.isArray(selectedLoads) || selectedLoads.length === 0) {
+const Results = ({ loads = [] }) => {
+  if (!Array.isArray(loads) || loads.length === 0) {
     return <p className="text-gray-500 mt-4">Select at least one load to see results.</p>;
   }
 
   const toKW = (watts) => watts / 1000;
 
-  const continuousLoads = selectedLoads.filter((load) => load.type === "Continuous");
-  const nonContinuousLoads = selectedLoads.filter((load) => load.type !== "Continuous");
-  const motorLoads = selectedLoads.filter((load) => load.isMotor || load.is_motor);
+  const continuousLoads = loads.filter((load) => load.type === "Continuous");
+  const nonContinuousLoads = loads.filter((load) => load.type !== "Continuous");
+  const motorLoads = loads.filter((load) => load.isMotor || load.is_motor);
 
-  const totalConnectedLoadKW = selectedLoads.reduce((sum, load) => sum + toKW(load.power), 0);
+  const totalConnectedLoadKW = loads.reduce((sum, load) => sum + toKW(load.power), 0);
   const continuousLoadKW = continuousLoads.reduce((sum, load) => sum + toKW(load.power), 0) * 1.25;
   const nonContinuousLoadKW = nonContinuousLoads.reduce((sum, load) => sum + toKW(load.power), 0);
   const largestMotorKW = motorLoads.length > 0 ? Math.max(...motorLoads.map((load) => toKW(load.power))) * 0.25 : 0;
