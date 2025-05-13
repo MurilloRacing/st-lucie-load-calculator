@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import toast from 'react-hot-toast';
 
-const LoadModal = ({ onClose, onLoadSaved }) => {
+const LoadModal = ({ onClose, onLoadSaved, onSave, templateId }) => {
   const [name, setName] = useState('');
   const [power, setPower] = useState('');
   const [unit, setUnit] = useState('Watts');
@@ -11,9 +11,9 @@ const LoadModal = ({ onClose, onLoadSaved }) => {
   const [type, setType] = useState('Non-Continuous');
   const [isMotor, setIsMotor] = useState(false);
 
-  const getVoltage = () => {
-    return voltage === 'custom' ? parseFloat(customVoltage) : parseFloat(voltage);
-  };
+  const getVoltage = () => voltage === 'custom'
+    ? parseFloat(customVoltage)
+    : parseFloat(voltage);
 
   const calculateWatts = () => {
     const volts = getVoltage();
@@ -24,25 +24,31 @@ const LoadModal = ({ onClose, onLoadSaved }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const volts = getVoltage();
     const wattValue = calculateWatts();
 
-    const { error } = await supabase.from('Loads').insert([{
+    const newLoad = {
       name,
       power: wattValue,
       voltage: isNaN(volts) ? 120 : volts,
       type,
       is_motor: isMotor,
-    }]);
+    };
+
+    if (onSave) {
+      // Custom handler like TemplateEditor
+      await onSave(templateId ? { ...newLoad, list_id: templateId } : newLoad);
+      toast.success('Load added to template!');
+      onClose();
+      return;
+    }
+
+    // Default fallback: insert into 'Loads'
+    const { error } = await supabase.from('Loads').insert([newLoad]);
 
     if (error) {
       console.error('Supabase insert error:', error);
-      toast.error(
-        error && typeof error === 'object' && error.message
-          ? `Error saving load: ${error.message}`
-          : 'Error saving load: Something went wrong.'
-      );
+      toast.error(error.message || 'Error saving load.');
     } else {
       toast.success('Load saved successfully!');
       onLoadSaved?.();
@@ -130,7 +136,11 @@ const LoadModal = ({ onClose, onLoadSaved }) => {
           <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
             Save Load
           </button>
-          <button type="button" className="bg-gray-400 text-white px-4 py-2 rounded" onClick={onClose}>
+          <button
+            type="button"
+            className="bg-gray-400 text-white px-4 py-2 rounded"
+            onClick={onClose}
+          >
             Cancel
           </button>
         </div>
