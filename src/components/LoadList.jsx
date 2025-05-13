@@ -3,8 +3,8 @@ import { supabase } from "../lib/supabaseClient";
 import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
 import toast from "react-hot-toast";
 
-const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad }) => {
-  const [loads, setLoads] = useState([]);
+const LoadList = ({ loads, setLoads }) => {
+  const [availableLoads, setAvailableLoads] = useState([]);
   const [editingRowId, setEditingRowId] = useState(null);
   const [editedRow, setEditedRow] = useState({});
 
@@ -17,20 +17,21 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
 
       if (error) {
         console.error("Error fetching loads:", error);
+        toast.error("Failed to load default loads.");
       } else {
-        setLoads(data);
+        setAvailableLoads(data);
       }
     };
 
     fetchLoads();
-  }, [refreshTrigger]);
+  }, []);
 
   const toggleLoad = (load) => {
-    const alreadySelected = selectedLoads.some((l) => l.id === load.id);
+    const alreadySelected = loads.some((l) => l.id === load.id);
     if (alreadySelected) {
-      setSelectedLoads(selectedLoads.filter((l) => l.id !== load.id));
+      setLoads(loads.filter((l) => l.id !== load.id));
     } else {
-      setSelectedLoads([...selectedLoads, load]);
+      setLoads([...loads, load]);
     }
   };
 
@@ -41,9 +42,11 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
     const { error } = await supabase.from("Loads").delete().eq("id", id);
     if (error) {
       console.error("Error deleting load:", error.message);
+      toast.error("Delete failed.");
     } else {
+      setAvailableLoads((prev) => prev.filter((l) => l.id !== id));
       setLoads((prev) => prev.filter((l) => l.id !== id));
-      setSelectedLoads((prev) => prev.filter((l) => l.id !== id));
+      toast.success("Load deleted.");
     }
   };
 
@@ -75,7 +78,7 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
       toast.success("Load updated!");
       setEditingRowId(null);
       setEditedRow({});
-      setLoads((prev) =>
+      setAvailableLoads((prev) =>
         prev.map((l) => (l.id === id ? { ...l, ...editedRow } : l))
       );
     }
@@ -88,8 +91,8 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
 
   return (
     <div className="bg-white rounded shadow p-4 mb-6">
-      <h2 className="text-xl font-semibold mb-4">Load List</h2>
-      {loads.length === 0 ? (
+      <h2 className="text-xl font-semibold mb-4">📂 Available Loads</h2>
+      {availableLoads.length === 0 ? (
         <p className="text-gray-500">No loads available.</p>
       ) : (
         <div className="overflow-x-auto">
@@ -106,12 +109,12 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
               </tr>
             </thead>
             <tbody>
-              {loads.map((load) => (
+              {availableLoads.map((load) => (
                 <tr key={load.id} className="border-t hover:bg-gray-50">
                   <td className="p-2">
                     <input
                       type="checkbox"
-                      checked={selectedLoads.some((l) => l.id === load.id)}
+                      checked={loads.some((l) => l.id === load.id)}
                       onChange={() => toggleLoad(load)}
                     />
                   </td>
@@ -169,7 +172,9 @@ const LoadList = ({ selectedLoads, setSelectedLoads, refreshTrigger, editLoad })
                       <input
                         type="checkbox"
                         checked={editedRow.is_motor}
-                        onChange={(e) => handleInputChange("is_motor", e.target.checked)}
+                        onChange={(e) =>
+                          handleInputChange("is_motor", e.target.checked)
+                        }
                       />
                     ) : (
                       load.is_motor ? "Yes" : "No"
