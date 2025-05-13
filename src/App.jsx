@@ -1,16 +1,15 @@
 import { Routes, Route, useLocation, useParams } from 'react-router-dom';
-import Home from './components/Home';
-import Calculator from './components/Calculator';
 
-import NewCalculator from './components/NewCalculator';
-import SavedLists from './components/SavedLists';
-import LoadListTemplates from './components/LoadListTemplates';
-import TemplateEditor from './components/TemplateEditor'; // Add this import
-import Admin from './components/Admin';
+import Home from '@/pages/Home';
+import Calculator from '@/pages/Calculator'; // Now points to the renamed file
+import SavedLists from '@/pages/SavedLists';
+import LoadListTemplates from '@/components/LoadListTemplates';
+import TemplateEditor from '@/components/TemplateEditor';
+import Admin from '@/pages/Admin';
 
 import './index.css';
 
-// Wrapper to extract route params for TemplateEditor
+// Route param wrapper for TemplateEditor
 const TemplateEditorWrapper = () => {
   const { templateId } = useParams();
   return <TemplateEditor templateId={templateId} />;
@@ -18,14 +17,13 @@ const TemplateEditorWrapper = () => {
 
 function App() {
   const location = useLocation();
-  console.log('Current path:', location.pathname);
+  console.log('📍 Current path:', location.pathname);
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/calculator" element={<Calculator />} />
-        <Route path="/new" element={<NewCalculator />} />
         <Route path="/saved-lists" element={<SavedLists />} />
         <Route path="/load-lists" element={<LoadListTemplates />} />
         <Route path="/load-lists/:templateId" element={<TemplateEditorWrapper />} />

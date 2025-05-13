@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import UnitInfoHeader from './UnitInfoHeader';
-import LoadList from './LoadList';
-import Results from './Results';
-import SaveLoadListControls from './SaveLoadListControls';
-import ExportPDFButton from './ExportPDFButton';
+import UnitInfoHeader from '@/components/UnitInfoHeader';
+import LoadList from '@/components/LoadList';
+import Results from '@/components/Results';
+import SaveLoadListControls from '@/components/SaveLoadListControls';
+import ExportPDFButton from '@/components/ExportPDFButton';
+import LoadModal from '@/components/LoadModal'; // if used
+
 
 export default function NewCalculator() {
   const [unitName, setUnitName] = useState('');
