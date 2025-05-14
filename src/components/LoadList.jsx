@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 
 const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRowId, editedRow, handleInputChange, handleSaveRow, handleCancelEdit }) => {
   return (
-    <div className="grid grid-cols-7 gap-2 items-center p-2">
+    <div className="grid grid-cols-7 gap-2 items-center p-2 border border-red-500">
       {/* Column 1: Checkbox */}
       <div className="flex justify-center">
         <input

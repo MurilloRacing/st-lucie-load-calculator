@@ -120,7 +120,12 @@ export default function Calculator() {
           setSpaceNumber={setSpaceNumber}
         />
         <div className="w-full max-w-7xl mx-auto px-4">
-          <LoadList loads={loads} setLoads={setLoads} autoSelect={autoSelect} />
+          <LoadList
+            loads={loads}
+            setLoads={setLoads}
+            autoSelect={autoSelect}
+            templateId={selectedListId}
+          />
         </div>
         <Results loads={loads} />
       </div>
