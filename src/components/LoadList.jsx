@@ -5,7 +5,7 @@ import { FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
 
 const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRowId, editedRow, handleInputChange, handleSaveRow, handleCancelEdit }) => {
   return (
-    <div className="grid grid-cols-7 gap-2 items-center p-2">
+    <div className="grid grid-cols-7 gap-2 w-full min-w-[1024px] items-center p-2">
       {/* Column 1: Checkbox */}
       <div className="text-center">
         <input
