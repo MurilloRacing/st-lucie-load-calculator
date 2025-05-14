@@ -18,25 +18,25 @@ export default function Calculator() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchSavedLists = async () => {
+    const fetchTemplates = async () => {
       setIsLoading(true);
       try {
         const { data, error } = await supabase
-          .from('saved_load_lists') // Make sure table name matches your Supabase schema
+          .from('Loads')  // Changed to Loads table
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('name', { ascending: true });
 
         if (error) throw error;
         setSavedLists(data || []);
       } catch (error) {
-        console.error('Error fetching saved lists:', error);
-        toast.error('Failed to fetch saved lists');
+        console.error('Error fetching templates:', error);
+        toast.error('Failed to fetch load templates');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchSavedLists();
+    fetchTemplates();
   }, []);
 
   const handleAutoSelectToggle = async () => {
@@ -64,13 +64,30 @@ export default function Calculator() {
   };
 
   const handleSavedListSelect = async (id) => {
-    setSelectedListId(id);
-    const { data, error } = await supabase
-      .from('load_list_items')
-      .select('*')
-      .eq('list_id', id);
-    if (!error) {
-      setLoads(data);
+    if (!id) return;
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('Loads')  // Changed to Loads table
+        .select('*')
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      if (data?.[0]) {
+        setLoads([{
+          ...data[0],
+          enabled: true
+        }]);
+        toast.success('Load template added');
+      }
+    } catch (error) {
+      console.error('Error loading template:', error);
+      toast.error('Failed to load template');
+    } finally {
+      setIsLoading(false);
+      setSelectedListId('');  // Reset selection
     }
   };
 
@@ -116,11 +133,11 @@ export default function Calculator() {
           disabled={isLoading}
         >
           <option value="">
-            {isLoading ? 'Loading...' : '📁 Load Saved Template'}
+            {isLoading ? 'Loading...' : '⚡ Load Saved Template'}
           </option>
-          {savedLists.map((list) => (
-            <option key={list.id} value={list.id}>
-              {list.name} – {list.building_id} {list.space_number}
+          {savedLists.map((template) => (
+            <option key={template.id} value={template.id}>
+              {template.name} ({template.voltage}V, {template.power}W)
             </option>
           ))}
         </select>
