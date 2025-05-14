@@ -1,5 +1,6 @@
 import { Routes, Route, useLocation, useParams, Link } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { Component } from 'react';
 
 import Home from '@/pages/Home';
 import Calculator from '@/pages/Calculator';
@@ -8,7 +9,6 @@ import LoadListTemplates from '@/components/LoadListTemplates';
 import TemplateEditor from '@/components/TemplateEditor';
 import Admin from '@/pages/Admin';
 import NavBar from '@/components/NavBar';
-import ErrorBoundary from '@/components/ErrorBoundary';
 
 import './index.css';
 
@@ -29,12 +29,37 @@ const TemplateEditorWrapper = () => {
   return <TemplateEditor templateId={templateId} />;
 };
 
-function App() {
-  const location = useLocation();
-  console.log('📍 Current path:', location.pathname);
+class App extends Component {
+  state = { hasError: false };
 
-  return (
-    <ErrorBoundary>
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Application error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Something went wrong</h1>
+            <p className="text-gray-600 mb-4">Please try refreshing the page</p>
+            <Link
+              to="/"
+              onClick={() => this.setState({ hasError: false })}
+              className="text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              ← Back to Home
+            </Link>
+          </div>
+        </div>
+      );
+    }
+
+    return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <NavBar />
         <main className="flex-1">
@@ -68,8 +93,8 @@ function App() {
           }}
         />
       </div>
-    </ErrorBoundary>
-  );
+    );
+  }
 }
 
 export default App;
