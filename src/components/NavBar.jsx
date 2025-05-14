@@ -19,27 +19,36 @@ const NavBar = () => {
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm px-4 py-3 overflow-x-auto">
-      <ul className="flex flex-wrap justify-center gap-x-4 sm:gap-x-6 whitespace-nowrap text-sm font-medium">
-        {navLinks.map(({ path, label, icon: Icon }) => {
-          const isActive = pathname === path;
-          return (
-            <li key={path}>
-              <Link
-                to={path}
-                className={`inline-flex items-center gap-2 px-3 py-2 rounded transition-all ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-blue-700 hover:bg-blue-100'
-                }`}
-              >
-                <Icon size={18} />
-                <span>{label}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+    <nav className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex justify-center h-16">
+          <ul className="flex items-center gap-x-1 sm:gap-x-2 md:gap-x-4">
+            {navLinks.map(({ path, label, icon: Icon }) => {
+              const isActive = pathname === path;
+              return (
+                <li key={path}>
+                  <Link
+                    to={path}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`
+                      inline-flex items-center gap-2 px-3 py-2 rounded-md
+                      text-sm font-medium transition-all duration-150
+                      focus:outline-none focus:ring-2 focus:ring-offset-2
+                      ${isActive
+                        ? 'bg-blue-600 text-white shadow-md focus:ring-blue-500'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600 focus:ring-gray-500'
+                      }
+                    `}
+                  >
+                    <Icon size={18} aria-hidden="true" />
+                    <span className="hidden sm:inline">{label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
     </nav>
   );
 };

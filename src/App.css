@@ -1,8 +1,84 @@
+/* Base styles */
 #root {
   max-width: 100%;
   margin: 0 auto;
   padding: 0;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: #f9fafb;
+}
+
+/* Typography */
+.text-gradient {
+  background: linear-gradient(45deg, #3b82f6, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+/* Loading Animation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading {
+  animation: spin 1s linear infinite;
+}
+
+/* Transitions */
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Media Queries */
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .container {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .container {
+    padding: 3rem;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  #root {
+    background-color: #1f2937;
+    color: #f9fafb;
+  }
 }
 
 .logo {

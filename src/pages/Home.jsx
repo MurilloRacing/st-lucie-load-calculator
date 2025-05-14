@@ -1,36 +1,70 @@
 import { Link } from 'react-router-dom';
 
+const NavButton = ({ to, color, hoverColor, icon, children }) => (
+  <Link
+    to={to}
+    className={`
+      flex items-center justify-center gap-3 py-3 px-6 rounded-lg
+      ${color} text-white font-medium
+      transform transition-all duration-200
+      hover:${hoverColor} hover:scale-[1.02]
+      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${color}
+    `}
+  >
+    <span className="text-xl">{icon}</span>
+    <span>{children}</span>
+  </Link>
+);
+
 const Home = () => (
-  <div className="max-w-xl mx-auto mt-12 p-6 bg-white shadow rounded">
-    <h1 className="text-3xl font-bold mb-4 text-center">📊 P1 Load Calculator</h1>
-    <p className="mb-6 text-gray-700 text-center">
-      Use this tool to build and manage electrical load templates for P1 Motor Club units.
-    </p>
-    <div className="flex flex-col gap-4">
-      <Link
-        to="/calculator"
-        className="bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700"
-      >
-        ⚙️ Start New Calculation
-      </Link>
-      <Link
-        to="/saved-lists"
-        className="bg-green-600 text-white text-center py-2 rounded hover:bg-green-700"
-      >
-        💾 View Saved Lists
-      </Link>
-      <Link
-        to="/load-lists"
-        className="bg-purple-600 text-white text-center py-2 rounded hover:bg-purple-700"
-      >
-        📂 View Load Templates
-      </Link>
-      <Link
-        to="/admin"
-        className="bg-gray-800 text-white text-center py-2 rounded hover:bg-gray-900"
-      >
-        🔐 Admin Tools
-      </Link>
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+    <div className="w-full max-w-xl bg-white shadow-lg rounded-xl p-8">
+      <h1 className="text-3xl font-bold mb-4 text-center text-gray-800">
+        📊 P1 Load Calculator
+      </h1>
+      
+      <p className="mb-8 text-gray-600 text-center leading-relaxed">
+        Use this tool to build and manage electrical load templates 
+        for P1 Motor Club units.
+      </p>
+
+      <div className="space-y-4">
+        <NavButton 
+          to="/calculator" 
+          color="bg-blue-600" 
+          hoverColor="bg-blue-700" 
+          icon="⚙️"
+        >
+          Start New Calculation
+        </NavButton>
+
+        <NavButton 
+          to="/saved-lists" 
+          color="bg-green-600" 
+          hoverColor="bg-green-700" 
+          icon="💾"
+        >
+          View Saved Lists
+        </NavButton>
+
+        <NavButton 
+          to="/load-lists" 
+          color="bg-purple-600" 
+          hoverColor="bg-purple-700" 
+          icon="📂"
+        >
+          View Load Templates
+        </NavButton>
+
+        <NavButton 
+          to="/admin" 
+          color="bg-gray-800" 
+          hoverColor="bg-gray-900" 
+          icon="🔐"
+        >
+          Admin Tools
+        </NavButton>
+      </div>
     </div>
   </div>
 );
