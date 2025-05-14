@@ -1,11 +1,12 @@
 import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 
 import Home from '@/pages/Home';
-import Calculator from '@/pages/Calculator'; // Now points to the renamed file
+import Calculator from '@/pages/Calculator';
 import SavedLists from '@/pages/SavedLists';
 import LoadListTemplates from '@/components/LoadListTemplates';
 import TemplateEditor from '@/components/TemplateEditor';
 import Admin from '@/pages/Admin';
+import NavBar from '@/components/NavBar'; // Import NavBar component
 
 import './index.css';
 
@@ -20,7 +21,8 @@ function App() {
   console.log('📍 Current path:', location.pathname);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
+      <NavBar /> {/* Render NavBar above the routes */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/calculator" element={<Calculator />} />
