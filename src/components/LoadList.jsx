@@ -5,125 +5,127 @@ import toast from 'react-hot-toast';
 
 const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRowId, editedRow, handleInputChange, handleSaveRow, handleCancelEdit }) => {
   return (
-    <div className="grid grid-cols-7 gap-2 items-center p-2 border border-red-500">
-      {/* Column 1: Checkbox */}
-      <div className="text-center">
-        <input
-          type="checkbox"
-          checked={load.enabled}
-          onChange={() => toggleEnabled(index)}
-        />
-      </div>
-
-      {/* Column 2: Name */}
-      <div>
-        {editingRowId === load.id ? (
-          <input
-            className="w-full border rounded p-1"
-            value={editedRow.name}
-            onChange={(e) => handleInputChange('name', e.target.value)}
-          />
-        ) : (
-          load.name
-        )}
-      </div>
-
-      {/* Column 3: Power */}
-      <div className="text-center">
-        {editingRowId === load.id ? (
-          <input
-            type="number"
-            className="w-full border rounded p-1"
-            value={editedRow.power}
-            onChange={(e) => handleInputChange('power', e.target.value)}
-          />
-        ) : (
-          `${load.power} W`
-        )}
-      </div>
-
-      {/* Column 4: Voltage */}
-      <div className="text-center">
-        {editingRowId === load.id ? (
-          <input
-            type="number"
-            className="w-full border rounded p-1"
-            value={editedRow.voltage}
-            onChange={(e) => handleInputChange('voltage', e.target.value)}
-          />
-        ) : (
-          `${load.voltage} V`
-        )}
-      </div>
-
-      {/* Column 5: Type */}
-      <div className="text-center">
-        {editingRowId === load.id ? (
-          <select
-            className="w-full border rounded p-1"
-            value={editedRow.type}
-            onChange={(e) => handleInputChange('type', e.target.value)}
-          >
-            <option value="Non-Continuous">Non-Continuous</option>
-            <option value="Continuous">Continuous</option>
-          </select>
-        ) : (
-          load.type
-        )}
-      </div>
-
-      {/* Column 6: Motor */}
-      <div className="text-center">
-        {editingRowId === load.id ? (
+    <div className="w-full overflow-x-auto">
+      <div className="grid grid-cols-7 gap-2 items-center p-2 border border-red-500 min-w-[1000px]">
+        {/* Column 1: Checkbox */}
+        <div className="text-center">
           <input
             type="checkbox"
-            checked={editedRow.is_motor}
-            onChange={(e) =>
-              handleInputChange('is_motor', e.target.checked)
-            }
+            checked={load.enabled}
+            onChange={() => toggleEnabled(index)}
           />
-        ) : load.is_motor ? (
-          'Yes'
-        ) : (
-          'No'
-        )}
-      </div>
+        </div>
 
-      {/* Column 7: Actions */}
-      <div className="flex justify-end gap-2">
-        {editingRowId === load.id ? (
-          <>
-            <button
-              className="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-              onClick={() => handleSaveRow(load.id)}
+        {/* Column 2: Name */}
+        <div>
+          {editingRowId === load.id ? (
+            <input
+              className="w-full border rounded p-1"
+              value={editedRow.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+            />
+          ) : (
+            load.name
+          )}
+        </div>
+
+        {/* Column 3: Power */}
+        <div className="text-center">
+          {editingRowId === load.id ? (
+            <input
+              type="number"
+              className="w-full border rounded p-1"
+              value={editedRow.power}
+              onChange={(e) => handleInputChange('power', e.target.value)}
+            />
+          ) : (
+            `${load.power} W`
+          )}
+        </div>
+
+        {/* Column 4: Voltage */}
+        <div className="text-center">
+          {editingRowId === load.id ? (
+            <input
+              type="number"
+              className="w-full border rounded p-1"
+              value={editedRow.voltage}
+              onChange={(e) => handleInputChange('voltage', e.target.value)}
+            />
+          ) : (
+            `${load.voltage} V`
+          )}
+        </div>
+
+        {/* Column 5: Type */}
+        <div className="text-center">
+          {editingRowId === load.id ? (
+            <select
+              className="w-full border rounded p-1"
+              value={editedRow.type}
+              onChange={(e) => handleInputChange('type', e.target.value)}
             >
-              Save
-            </button>
-            <button
-              className="inline-flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
-              onClick={handleCancelEdit}
-            >
-              Cancel
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              className="text-blue-600 hover:text-blue-800"
-              onClick={() => handleEditRow(load)}
-            >
-              ✏️
-            </button>
-            <button
-              className="text-red-600 hover:text-red-800"
-              onClick={() => deleteLoad(load.id)}
-            >
-              🗑️
-            </button>
-          </>
-        )}
-      </div>
-    </div>
+              <option value="Non-Continuous">Non-Continuous</option>
+              <option value="Continuous">Continuous</option>
+            </select>
+          ) : (
+            load.type
+          )}
+        </div>
+
+        {/* Column 6: Motor */}
+        <div className="text-center">
+          {editingRowId === load.id ? (
+            <input
+              type="checkbox"
+              checked={editedRow.is_motor}
+              onChange={(e) =>
+                handleInputChange('is_motor', e.target.checked)
+              }
+            />
+          ) : load.is_motor ? (
+            'Yes'
+          ) : (
+            'No'
+          )}
+        </div>
+
+        {/* Column 7: Actions */}
+        <div className="flex justify-end gap-2">
+          {editingRowId === load.id ? (
+            <>
+              <button
+                className="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                onClick={() => handleSaveRow(load.id)}
+              >
+                Save
+              </button>
+              <button
+                className="inline-flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
+                onClick={handleCancelEdit}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="text-blue-600 hover:text-blue-800"
+                onClick={() => handleEditRow(load)}
+              >
+                ✏️
+              </button>
+              <button
+                className="text-red-600 hover:text-red-800"
+                onClick={() => deleteLoad(load.id)}
+              >
+                🗑️
+              </button>
+            </>
+          )}
+        </div>
+      </div> {/* closes .grid */}
+    </div> {/* closes .overflow-x-auto */}
   );
 };
 
