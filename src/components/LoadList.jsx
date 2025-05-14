@@ -19,7 +19,8 @@ const LoadList = ({ loads, setLoads, templateId }) => {
         console.error('Error fetching template loads:', error);
         toast.error('Failed to load items.');
       } else {
-        setLoads(data);
+        // Add `enabled: true` to each load item
+        setLoads(data.map((item) => ({ ...item, enabled: true })));
       }
     };
 
@@ -79,6 +80,14 @@ const LoadList = ({ loads, setLoads, templateId }) => {
     setEditedRow({});
   };
 
+  const toggleEnabled = (index) => {
+    setLoads((prev) =>
+      prev.map((l, i) =>
+        i === index ? { ...l, enabled: !l.enabled } : l
+      )
+    );
+  };
+
   return (
     <div className="bg-white rounded shadow p-4 mb-6">
       <h2 className="text-xl font-semibold mb-4">📝 Template Items</h2>
@@ -88,7 +97,8 @@ const LoadList = ({ loads, setLoads, templateId }) => {
       ) : (
         <>
           {/* Header */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 font-semibold text-sm bg-gray-100 p-2 border-b gap-2 md:gap-0">
+          <div className="grid grid-cols-[40px,repeat(5,minmax(0,1fr))] font-semibold text-sm bg-gray-100 p-2 border-b gap-2 md:gap-0">
+            <div className="text-center">✔</div>
             <div>Name</div>
             <div className="text-center">Power (W)</div>
             <div className="text-center">Voltage</div>
@@ -97,54 +107,78 @@ const LoadList = ({ loads, setLoads, templateId }) => {
             <div className="text-right">Actions</div>
           </div>
 
-          {/* Data Rows */}
-          <div className="divide-y border rounded">
-            {loads.map((load) => (
+          {/* Rows - Scrollable */}
+          <div className="divide-y border rounded max-h-[400px] overflow-y-auto">
+            {loads.map((load, index) => (
               <div
                 key={load.id}
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 items-center gap-2 md:gap-0 p-2"
+                className="grid grid-cols-[40px,repeat(5,minmax(0,1fr))] items-center gap-2 md:gap-0 p-2"
               >
+                {/* Checkbox */}
+                <div className="flex justify-center">
+                  <input
+                    type="checkbox"
+                    checked={load.enabled}
+                    onChange={() => toggleEnabled(index)}
+                  />
+                </div>
+
+                {/* Name */}
                 <div>
                   {editingRowId === load.id ? (
                     <input
                       className="w-full border rounded p-1"
                       value={editedRow.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange('name', e.target.value)
+                      }
                     />
                   ) : (
                     load.name
                   )}
                 </div>
+
+                {/* Power */}
                 <div className="text-center">
                   {editingRowId === load.id ? (
                     <input
                       type="number"
                       className="w-full border rounded p-1"
                       value={editedRow.power}
-                      onChange={(e) => handleInputChange('power', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange('power', e.target.value)
+                      }
                     />
                   ) : (
                     `${load.power} W`
                   )}
                 </div>
+
+                {/* Voltage */}
                 <div className="text-center">
                   {editingRowId === load.id ? (
                     <input
                       type="number"
                       className="w-full border rounded p-1"
                       value={editedRow.voltage}
-                      onChange={(e) => handleInputChange('voltage', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange('voltage', e.target.value)
+                      }
                     />
                   ) : (
                     `${load.voltage} V`
                   )}
                 </div>
+
+                {/* Type */}
                 <div className="text-center">
                   {editingRowId === load.id ? (
                     <select
                       className="w-full border rounded p-1"
                       value={editedRow.type}
-                      onChange={(e) => handleInputChange('type', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange('type', e.target.value)
+                      }
                     >
                       <option value="Non-Continuous">Non-Continuous</option>
                       <option value="Continuous">Continuous</option>
@@ -153,6 +187,8 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                     load.type
                   )}
                 </div>
+
+                {/* Motor */}
                 <div className="text-center">
                   {editingRowId === load.id ? (
                     <input
@@ -168,6 +204,8 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                     'No'
                   )}
                 </div>
+
+                {/* Actions */}
                 <div className="flex justify-end space-x-2">
                   {editingRowId === load.id ? (
                     <>
