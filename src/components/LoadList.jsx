@@ -82,15 +82,12 @@ const LoadList = ({ loads, setLoads, templateId }) => {
 
   const Row = ({ index, style }) => {
     const load = loads[index];
-    if (!load || !load.id) {
-      console.warn(`Missing key for load at index ${index}`);
-      return null;
-    }
+    if (!load || !load.id) return null;
 
     return (
       <div
         style={style}
-        className="grid grid-cols-6 items-center border-b p-2"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 items-center gap-2 md:gap-0 border-b p-2"
         key={load.id}
       >
         <div>
@@ -147,9 +144,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
             <input
               type="checkbox"
               checked={editedRow.is_motor}
-              onChange={(e) =>
-                handleInputChange('is_motor', e.target.checked)
-              }
+              onChange={(e) => handleInputChange('is_motor', e.target.checked)}
             />
           ) : load.is_motor ? (
             'Yes'
@@ -199,8 +194,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
         <p className="text-gray-500">No loads defined for this template.</p>
       ) : (
         <>
-          {/* Header Row */}
-          <div className="grid grid-cols-6 font-semibold text-sm bg-gray-100 p-2 border-b">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 font-semibold text-sm bg-gray-100 p-2 border-b gap-2 md:gap-0">
             <div>Name</div>
             <div className="text-center">Power (W)</div>
             <div className="text-center">Voltage</div>
@@ -208,16 +202,16 @@ const LoadList = ({ loads, setLoads, templateId }) => {
             <div className="text-center">Motor?</div>
             <div className="text-right">Actions</div>
           </div>
-
-          {/* Virtualized List */}
-          <List
-            height={400} // Adjust based on the desired height
-            itemCount={loads.length}
-            itemSize={50} // Adjust based on row height
-            width="100%"
-          >
-            {Row}
-          </List>
+          <div className="overflow-x-auto">
+            <List
+              height={400}
+              itemCount={loads.length}
+              itemSize={50}
+              width="100%"
+            >
+              {Row}
+            </List>
+          </div>
         </>
       )}
     </div>
