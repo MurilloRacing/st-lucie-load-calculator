@@ -119,7 +119,9 @@ export default function Calculator() {
           spaceNumber={spaceNumber}
           setSpaceNumber={setSpaceNumber}
         />
-        <LoadList loads={loads} setLoads={setLoads} autoSelect={autoSelect} />
+        <div className="w-full max-w-7xl mx-auto px-4">
+          <LoadList loads={loads} setLoads={setLoads} autoSelect={autoSelect} />
+        </div>
         <Results loads={loads} />
       </div>
 

@@ -104,7 +104,7 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
       ) : (
         <>
           {/* Header Row */}
-          <div className="grid grid-cols-6 md:grid-cols-7 gap-4 font-semibold text-sm bg-gray-100 p-2 border-b">
+          <div className="grid grid-cols-7 gap-2 font-semibold text-sm bg-gray-100 p-2 border-b">
             <div className="text-center text-xs text-gray-600">✔</div>
             <div>Name</div>
             <div className="text-center">Power (W)</div>
@@ -121,7 +121,7 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
                 key={load.id}
                 className="grid grid-cols-6 md:grid-cols-7 gap-4 items-center p-2"
               >
-                {/* Checkbox */}
+                {/* Column 1: Checkbox */}
                 <div className="flex justify-center">
                   <input
                     type="checkbox"
@@ -130,7 +130,7 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
                   />
                 </div>
 
-                {/* Name */}
+                {/* Column 2: Name */}
                 <div>
                   {editingRowId === load.id ? (
                     <input
@@ -143,7 +143,7 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
                   )}
                 </div>
 
-                {/* Power */}
+                {/* Column 3: Power */}
                 <div className="text-center">
                   {editingRowId === load.id ? (
                     <input
@@ -157,7 +157,7 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
                   )}
                 </div>
 
-                {/* Voltage */}
+                {/* Column 4: Voltage */}
                 <div className="text-center">
                   {editingRowId === load.id ? (
                     <input
@@ -171,7 +171,7 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
                   )}
                 </div>
 
-                {/* Type */}
+                {/* Column 5: Type */}
                 <div className="text-center">
                   {editingRowId === load.id ? (
                     <select
@@ -187,7 +187,7 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
                   )}
                 </div>
 
-                {/* Motor */}
+                {/* Column 6: Motor */}
                 <div className="text-center">
                   {editingRowId === load.id ? (
                     <input
@@ -204,37 +204,39 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
                   )}
                 </div>
 
-                {/* Actions */}
-                <div className="flex justify-end space-x-2">
+                {/* Column 7: Actions */}
+                <div className="flex justify-end gap-2">
                   {editingRowId === load.id ? (
                     <>
                       <button
                         className="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
                         onClick={() => handleSaveRow(load.id)}
                       >
-                        <FaSave /> Save
+                        Save
                       </button>
                       <button
-                        className="inline-flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500 ml-2"
+                        className="inline-flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
                         onClick={handleCancelEdit}
                       >
-                        <FaTimes /> Cancel
+                        Cancel
                       </button>
                     </>
                   ) : (
-                    <button
-                      className="text-blue-600 hover:text-blue-800"
-                      onClick={() => handleEditRow(load)}
-                    >
-                      <FaEdit />
-                    </button>
+                    <>
+                      <button
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => handleEditRow(load)}
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-800"
+                        onClick={() => deleteLoad(load.id)}
+                      >
+                        🗑️
+                      </button>
+                    </>
                   )}
-                  <button
-                    className="text-red-600 hover:text-red-800"
-                    onClick={() => deleteLoad(load.id)}
-                  >
-                    <FaTrash />
-                  </button>
                 </div>
               </div>
             ))}
