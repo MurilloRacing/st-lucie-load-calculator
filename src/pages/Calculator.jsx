@@ -4,7 +4,6 @@ import LoadList from '@/components/LoadList';
 import Results from '@/components/Results';
 import SaveLoadListControls from '@/components/SaveLoadListControls';
 import ExportPDFButton from '@/components/ExportPDFButton';
-import LoadModal from '@/components/LoadModal'; // optional modal integration
 import { supabase } from '../lib/supabaseClient';
 
 export default function Calculator() {
@@ -13,8 +12,9 @@ export default function Calculator() {
   const [spaceNumber, setSpaceNumber] = useState('');
   const [loads, setLoads] = useState([]);
   const [autoSelect, setAutoSelect] = useState(false);
+  const [savedLists, setSavedLists] = useState([]);
+  const [selectedListId, setSelectedListId] = useState(null);
 
-  // Load previously selected loads if redirected from SavedLists.jsx
   useEffect(() => {
     const saved = localStorage.getItem('loadedLoads');
     if (saved) {
@@ -28,12 +28,14 @@ export default function Calculator() {
     }
   }, []);
 
-  // Load handler for saved list dropdown
-  const handleLoadFromSavedList = (loaded) => {
-    setLoads(loaded);
-  };
+  useEffect(() => {
+    const fetchSavedLists = async () => {
+      const { data, error } = await supabase.from('load_lists').select('*');
+      if (!error) setSavedLists(data);
+    };
+    fetchSavedLists();
+  }, []);
 
-  // Toggle and fetch essential loads from Supabase
   const handleAutoSelectToggle = async () => {
     const next = !autoSelect;
     setAutoSelect(next);
@@ -54,38 +56,26 @@ export default function Calculator() {
     }
   };
 
-  // Hardcoded test loads for quick demo
-  const loadSampleTemplate = () => {
-    setLoads([
-      {
-        name: "Lighting",
-        power: 7500,
-        voltage: 120,
-        type: "Continuous",
-        is_motor: false,
-      },
-      {
-        name: "Lift",
-        power: 6000,
-        voltage: 208,
-        type: "Non-Continuous",
-        is_motor: true,
-      },
-    ]);
+  const handleSavedListSelect = async (id) => {
+    setSelectedListId(id);
+    const { data, error } = await supabase
+      .from('load_list_items')
+      .select('*')
+      .eq('list_id', id);
+    if (!error) {
+      setLoads(data);
+    }
+  };
+
+  const handleLoadFromSavedList = (loaded) => {
+    setLoads(loaded);
   };
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-center mb-4">🛠️ New Load Calculator</h1>
+      <h1 className="text-3xl font-bold text-center mb-4">P1 Electrical Load Calculator</h1>
 
-      <ExportPDFButton
-        unitName={unitName}
-        buildingId={buildingId}
-        spaceNumber={spaceNumber}
-        loads={loads}
-      />
-
-      {/* Toggle + Sample Loader */}
+      {/* Auto Select and Saved Lists Dropdown */}
       <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
         <div className="flex items-center space-x-2">
           <input
@@ -95,15 +85,23 @@ export default function Calculator() {
             onChange={handleAutoSelectToggle}
             className="form-checkbox h-5 w-5 text-blue-600"
           />
-          <label htmlFor="autoSelect" className="text-sm">Auto Select Essentials</label>
+          <label htmlFor="autoSelect" className="text-sm">
+            Auto Select Essentials – Pre-installed
+          </label>
         </div>
 
-        <button
-          onClick={loadSampleTemplate}
-          className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+        <select
+          className="border rounded px-3 py-2"
+          value={selectedListId || ''}
+          onChange={(e) => handleSavedListSelect(e.target.value)}
         >
-          🔁 Load Sample Template
-        </button>
+          <option value="">📁 Load Saved Template</option>
+          {savedLists.map((list) => (
+            <option key={list.id} value={list.id}>
+              {list.name} – {list.building_id} {list.space_number}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Exportable Section */}
@@ -119,6 +117,15 @@ export default function Calculator() {
         <LoadList loads={loads} setLoads={setLoads} />
         <Results loads={loads} />
       </div>
+
+      {loads.length > 0 && (
+        <ExportPDFButton
+          unitName={unitName}
+          buildingId={buildingId}
+          spaceNumber={spaceNumber}
+          loads={loads}
+        />
+      )}
 
       <SaveLoadListControls
         loads={loads}

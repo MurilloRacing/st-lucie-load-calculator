@@ -1,34 +1,38 @@
 import { Link } from 'react-router-dom';
 
-function Home() {
-  return (
-    <div className="container mx-auto px-6 py-10 bg-gray-50 min-h-screen">
-      <nav className="mb-10 text-center">
-        <Link to="/" className="text-blue-600 font-semibold mr-6 hover:underline">
-          Home
-        </Link>
-        <Link to="/calculator" className="text-blue-600 font-semibold hover:underline">
-          Calculator
-        </Link>
-      </nav>
-
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">
-          P1 Motor Club – Electrical Load Calculator
-        </h1>
-        <p className="text-lg text-gray-600 mb-8">
-          Quickly estimate and manage power loads for your garage, shop, or commercial space.
-        </p>
-
-        <Link
-          to="/calculator"
-          className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-600 transition duration-300"
-        >
-          ➕ Start New Load Calculation
-        </Link>
-      </div>
+const Home = () => (
+  <div className="max-w-xl mx-auto mt-12 p-6 bg-white shadow rounded">
+    <h1 className="text-3xl font-bold mb-4 text-center">📊 P1 Load Calculator</h1>
+    <p className="mb-6 text-gray-700 text-center">
+      Use this tool to build and manage electrical load templates for P1 Motor Club units.
+    </p>
+    <div className="flex flex-col gap-4">
+      <Link
+        to="/calculator"
+        className="bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700"
+      >
+        ⚙️ Start New Calculation
+      </Link>
+      <Link
+        to="/saved-lists"
+        className="bg-green-600 text-white text-center py-2 rounded hover:bg-green-700"
+      >
+        💾 View Saved Lists
+      </Link>
+      <Link
+        to="/load-lists"
+        className="bg-purple-600 text-white text-center py-2 rounded hover:bg-purple-700"
+      >
+        📂 View Load Templates
+      </Link>
+      <Link
+        to="/admin"
+        className="bg-gray-800 text-white text-center py-2 rounded hover:bg-gray-900"
+      >
+        🔐 Admin Tools
+      </Link>
     </div>
-  );
-}
+  </div>
+);
 
 export default Home;
