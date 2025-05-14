@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import toast from 'react-hot-toast';
-import { FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
 
-const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRowId, editedRow, handleInputChange, handleSaveRow, handleCancelEdit }) => {
+const Row = ({
+  index,
+  load,
+  toggleEnabled,
+  handleEditRow,
+  deleteLoad,
+  editingRowId,
+  editedRow,
+  handleInputChange,
+  handleSaveRow,
+  handleCancelEdit,
+}) => {
   return (
     <div className="grid grid-cols-7 gap-2 items-center p-2 min-w-[1024px]">
-      {/* Column 1: Checkbox */}
       <div className="text-center">
         <input
           type="checkbox"
@@ -15,7 +24,6 @@ const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRow
         />
       </div>
 
-      {/* Column 2: Name */}
       <div>
         {editingRowId === load.id ? (
           <input
@@ -28,7 +36,6 @@ const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRow
         )}
       </div>
 
-      {/* Column 3: Power */}
       <div className="text-center">
         {editingRowId === load.id ? (
           <input
@@ -42,7 +49,6 @@ const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRow
         )}
       </div>
 
-      {/* Column 4: Voltage */}
       <div className="text-center">
         {editingRowId === load.id ? (
           <input
@@ -56,7 +62,6 @@ const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRow
         )}
       </div>
 
-      {/* Column 5: Type */}
       <div className="text-center">
         {editingRowId === load.id ? (
           <select
@@ -72,15 +77,12 @@ const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRow
         )}
       </div>
 
-      {/* Column 6: Motor */}
       <div className="text-center">
         {editingRowId === load.id ? (
           <input
             type="checkbox"
             checked={editedRow.is_motor}
-            onChange={(e) =>
-              handleInputChange('is_motor', e.target.checked)
-            }
+            onChange={(e) => handleInputChange('is_motor', e.target.checked)}
           />
         ) : load.is_motor ? (
           'Yes'
@@ -89,18 +91,17 @@ const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRow
         )}
       </div>
 
-      {/* Column 7: Actions */}
       <div className="flex justify-end gap-2">
         {editingRowId === load.id ? (
           <>
             <button
-              className="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+              className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
               onClick={() => handleSaveRow(load.id)}
             >
               Save
             </button>
             <button
-              className="inline-flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
+              className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
               onClick={handleCancelEdit}
             >
               Cancel
@@ -218,13 +219,14 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
   return (
     <div className="bg-white rounded shadow p-4 mb-6">
       <h2 className="text-xl font-semibold mb-4">📝 Template Items</h2>
+
       {loads.length === 0 ? (
         <p className="text-gray-500">No loads defined for this template.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="w-full overflow-x-auto">
           <div className="min-w-[1024px]">
-            {/* Header */}
-            <div className="grid grid-cols-7 gap-2 font-semibold text-sm bg-gray-100 p-2 border-b">
+            {/* Header Row */}
+            <div className="grid grid-cols-7 gap-2 font-semibold text-sm bg-gray-100 p-2 border-b items-center">
               <div className="text-center text-xs text-gray-600">✔</div>
               <div>Name</div>
               <div className="text-center">Power (W)</div>
@@ -233,6 +235,7 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
               <div className="text-center">Motor?</div>
               <div className="text-right">Actions</div>
             </div>
+
             {/* Rows */}
             <div className="max-h-[400px] overflow-y-auto">
               {loads.map((load, index) => (
