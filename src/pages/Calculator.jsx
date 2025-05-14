@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast'; // Add this import
 import UnitInfoHeader from '@/components/UnitInfoHeader';
 import LoadList from '@/components/LoadList';
 import Results from '@/components/Results';
@@ -14,25 +15,27 @@ export default function Calculator() {
   const [autoSelect, setAutoSelect] = useState(false);
   const [savedLists, setSavedLists] = useState([]);
   const [selectedListId, setSelectedListId] = useState(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('loadedLoads');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setLoads(parsed);
-        localStorage.removeItem('loadedLoads');
-      } catch (err) {
-        console.error("Failed to parse saved loads:", err);
-      }
-    }
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchSavedLists = async () => {
-      const { data, error } = await supabase.from('load_lists').select('*');
-      if (!error) setSavedLists(data);
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('saved_load_lists') // Make sure table name matches your Supabase schema
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setSavedLists(data || []);
+      } catch (error) {
+        console.error('Error fetching saved lists:', error);
+        toast.error('Failed to fetch saved lists');
+      } finally {
+        setIsLoading(false);
+      }
     };
+
     fetchSavedLists();
   }, []);
 
@@ -110,8 +113,11 @@ export default function Calculator() {
           className="border rounded px-3 py-2"
           value={selectedListId || ''}
           onChange={(e) => handleSavedListSelect(e.target.value)}
+          disabled={isLoading}
         >
-          <option value="">📁 Load Saved Template</option>
+          <option value="">
+            {isLoading ? 'Loading...' : '📁 Load Saved Template'}
+          </option>
           {savedLists.map((list) => (
             <option key={list.id} value={list.id}>
               {list.name} – {list.building_id} {list.space_number}

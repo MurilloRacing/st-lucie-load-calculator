@@ -9,10 +9,11 @@ const NavButton = ({ to, color, hoverColor, icon, children }) => (
       transform transition-all duration-200
       hover:${hoverColor} hover:scale-[1.02]
       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${color}
+      w-full
     `}
   >
-    <span className="text-xl">{icon}</span>
-    <span>{children}</span>
+    <span className="text-xl" aria-hidden="true">{icon}</span>
+    <span className="flex-1">{children}</span>
   </Link>
 );
 
@@ -24,8 +25,9 @@ const Home = () => (
       </h1>
       
       <p className="mb-8 text-gray-600 text-center leading-relaxed">
-        Use this tool to build and manage electrical load templates 
-        for P1 Motor Club units.
+        Use this app to estimate power requirements for P1 Motor Club's new commercial spaces. 
+        Select, modify, or create custom electrical load templates for equipment and devices 
+        to determine the necessary panel and power infrastructure.
       </p>
 
       <div className="space-y-4">
