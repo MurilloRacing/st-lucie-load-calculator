@@ -1,18 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './index.html',
-    './src/**/*.{js,ts,jsx,tsx}',
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   safelist: [
-    'border-red-500',
-    'border',
-    'grid',
     'grid-cols-7',
-    'gap-2',
-    'items-center',
+    'border',
+    'border-red-500',
     'text-center',
-    'text-right'
+    'text-right',
+    'items-center',
+    'gap-2',
+    'p-2',
   ],
   theme: {
     extend: {},
