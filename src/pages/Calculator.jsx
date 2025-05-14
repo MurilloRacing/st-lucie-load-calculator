@@ -119,15 +119,15 @@ export default function Calculator() {
           spaceNumber={spaceNumber}
           setSpaceNumber={setSpaceNumber}
         />
-        <div className="w-full overflow-x-auto px-4">
-          <div className="min-w-[1000px]">
+        <div className="overflow-x-auto px-4">
+          <div className="inline-block min-w-[1024px] align-top">
             <LoadList
               loads={loads}
               setLoads={setLoads}
               autoSelect={autoSelect}
               templateId={selectedListId}
             />
-          </div> {/* closes .min-w-[1000px] */}
+          </div>
         </div>
         <Results loads={loads} />
       </div>
