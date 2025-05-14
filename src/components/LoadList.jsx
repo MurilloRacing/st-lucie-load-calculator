@@ -5,7 +5,7 @@ import { FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
 
 const Row = ({ index, load, toggleEnabled, handleEditRow, deleteLoad, editingRowId, editedRow, handleInputChange, handleSaveRow, handleCancelEdit }) => {
   return (
-    <div className="grid grid-cols-7 gap-2 w-full min-w-[1024px] items-center p-2">
+    <div className="grid grid-cols-7 gap-2 items-center p-2 min-w-[1024px]">
       {/* Column 1: Checkbox */}
       <div className="text-center">
         <input
@@ -218,37 +218,39 @@ const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
   return (
     <div className="bg-white rounded shadow p-4 mb-6">
       <h2 className="text-xl font-semibold mb-4">📝 Template Items</h2>
-
       {loads.length === 0 ? (
         <p className="text-gray-500">No loads defined for this template.</p>
       ) : (
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-7 gap-2 font-semibold text-sm bg-gray-100 p-2 border-b min-w-[1000px]">
-            <div className="text-center text-xs text-gray-600">✔</div>
-            <div>Name</div>
-            <div className="text-center">Power (W)</div>
-            <div className="text-center">Voltage</div>
-            <div className="text-center">Type</div>
-            <div className="text-center">Motor?</div>
-            <div className="text-right">Actions</div>
-          </div>
-
-          <div className="max-h-[400px] overflow-y-auto">
-            {loads.map((load, index) => (
-              <Row
-                key={load.id}
-                index={index}
-                load={load}
-                toggleEnabled={toggleEnabled}
-                handleEditRow={handleEditRow}
-                deleteLoad={deleteLoad}
-                editingRowId={editingRowId}
-                editedRow={editedRow}
-                handleInputChange={handleInputChange}
-                handleSaveRow={handleSaveRow}
-                handleCancelEdit={handleCancelEdit}
-              />
-            ))}
+          <div className="min-w-[1024px]">
+            {/* Header */}
+            <div className="grid grid-cols-7 gap-2 font-semibold text-sm bg-gray-100 p-2 border-b">
+              <div className="text-center text-xs text-gray-600">✔</div>
+              <div>Name</div>
+              <div className="text-center">Power (W)</div>
+              <div className="text-center">Voltage</div>
+              <div className="text-center">Type</div>
+              <div className="text-center">Motor?</div>
+              <div className="text-right">Actions</div>
+            </div>
+            {/* Rows */}
+            <div className="max-h-[400px] overflow-y-auto">
+              {loads.map((load, index) => (
+                <Row
+                  key={load.id}
+                  index={index}
+                  load={load}
+                  toggleEnabled={toggleEnabled}
+                  handleEditRow={handleEditRow}
+                  deleteLoad={deleteLoad}
+                  editingRowId={editingRowId}
+                  editedRow={editedRow}
+                  handleInputChange={handleInputChange}
+                  handleSaveRow={handleSaveRow}
+                  handleCancelEdit={handleCancelEdit}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}
