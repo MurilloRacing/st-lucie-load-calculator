@@ -10,7 +10,7 @@ export default function UnitInfoHeader({
 }) {
   // Generate unique IDs for form fields
   const unitNameId = useId();
-  const buildingId = useId();
+  const buildingInputId = useId(); // Renamed to avoid conflict
   const spaceNumberId = useId();
 
   return (
@@ -36,13 +36,13 @@ export default function UnitInfoHeader({
 
       <div className="space-y-1">
         <label 
-          htmlFor={buildingId}
+          htmlFor={buildingInputId}
           className="block text-sm font-medium text-gray-700"
         >
           Building ID
         </label>
         <input
-          id={buildingId}
+          id={buildingInputId}
           type="text"
           value={buildingId}
           onChange={(e) => setBuildingId(e.target.value)}
