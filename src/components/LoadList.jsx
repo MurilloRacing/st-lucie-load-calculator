@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { FixedSizeList as List } from 'react-window';
 
 const LoadList = ({ loads, setLoads, templateId }) => {
   const [editingRowId, setEditingRowId] = useState(null);
@@ -79,127 +80,145 @@ const LoadList = ({ loads, setLoads, templateId }) => {
     setEditedRow({});
   };
 
+  const Row = ({ index, style }) => {
+    const load = loads[index];
+    if (!load || !load.id) {
+      console.warn(`Missing key for load at index ${index}`);
+      return null;
+    }
+
+    return (
+      <div
+        style={style}
+        className="grid grid-cols-6 items-center border-b p-2"
+        key={load.id}
+      >
+        <div>
+          {editingRowId === load.id ? (
+            <input
+              className="w-full border rounded p-1"
+              value={editedRow.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+            />
+          ) : (
+            load.name
+          )}
+        </div>
+        <div className="text-center">
+          {editingRowId === load.id ? (
+            <input
+              type="number"
+              className="w-full border rounded p-1"
+              value={editedRow.power}
+              onChange={(e) => handleInputChange('power', e.target.value)}
+            />
+          ) : (
+            `${load.power} W`
+          )}
+        </div>
+        <div className="text-center">
+          {editingRowId === load.id ? (
+            <input
+              type="number"
+              className="w-full border rounded p-1"
+              value={editedRow.voltage}
+              onChange={(e) => handleInputChange('voltage', e.target.value)}
+            />
+          ) : (
+            `${load.voltage} V`
+          )}
+        </div>
+        <div className="text-center">
+          {editingRowId === load.id ? (
+            <select
+              className="w-full border rounded p-1"
+              value={editedRow.type}
+              onChange={(e) => handleInputChange('type', e.target.value)}
+            >
+              <option value="Non-Continuous">Non-Continuous</option>
+              <option value="Continuous">Continuous</option>
+            </select>
+          ) : (
+            load.type
+          )}
+        </div>
+        <div className="text-center">
+          {editingRowId === load.id ? (
+            <input
+              type="checkbox"
+              checked={editedRow.is_motor}
+              onChange={(e) =>
+                handleInputChange('is_motor', e.target.checked)
+              }
+            />
+          ) : load.is_motor ? (
+            'Yes'
+          ) : (
+            'No'
+          )}
+        </div>
+        <div className="flex justify-end space-x-2">
+          {editingRowId === load.id ? (
+            <>
+              <button
+                className="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                onClick={() => handleSaveRow(load.id)}
+              >
+                <FaSave /> Save
+              </button>
+              <button
+                className="inline-flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500 ml-2"
+                onClick={handleCancelEdit}
+              >
+                <FaTimes /> Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              className="text-blue-600 hover:text-blue-800"
+              onClick={() => handleEditRow(load)}
+            >
+              <FaEdit />
+            </button>
+          )}
+          <button
+            className="text-red-600 hover:text-red-800"
+            onClick={() => deleteLoad(load.id)}
+          >
+            <FaTrash />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-white rounded shadow p-4 mb-6">
       <h2 className="text-xl font-semibold mb-4">📝 Template Items</h2>
       {loads.length === 0 ? (
         <p className="text-gray-500">No loads defined for this template.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full table-auto border-collapse text-sm">
-            <thead>
-              <tr className="bg-gray-100 text-left">
-                <th className="p-2">Name</th>
-                <th className="p-2">Power (W)</th>
-                <th className="p-2">Voltage</th>
-                <th className="p-2">Type</th>
-                <th className="p-2">Motor?</th>
-                <th className="p-2 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loads.map((load) => (
-                <tr key={load.id} className="border-t hover:bg-gray-50">
-                  <td className="p-2">
-                    {editingRowId === load.id ? (
-                      <input
-                        className="w-full border rounded p-1"
-                        value={editedRow.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
-                      />
-                    ) : (
-                      load.name
-                    )}
-                  </td>
-                  <td className="p-2">
-                    {editingRowId === load.id ? (
-                      <input
-                        type="number"
-                        className="w-full border rounded p-1"
-                        value={editedRow.power}
-                        onChange={(e) => handleInputChange('power', e.target.value)}
-                      />
-                    ) : (
-                      load.power
-                    )}
-                  </td>
-                  <td className="p-2">
-                    {editingRowId === load.id ? (
-                      <input
-                        type="number"
-                        className="w-full border rounded p-1"
-                        value={editedRow.voltage}
-                        onChange={(e) => handleInputChange('voltage', e.target.value)}
-                      />
-                    ) : (
-                      `${load.voltage}V`
-                    )}
-                  </td>
-                  <td className="p-2">
-                    {editingRowId === load.id ? (
-                      <select
-                        className="w-full border rounded p-1"
-                        value={editedRow.type}
-                        onChange={(e) => handleInputChange('type', e.target.value)}
-                      >
-                        <option value="Non-Continuous">Non-Continuous</option>
-                        <option value="Continuous">Continuous</option>
-                      </select>
-                    ) : (
-                      load.type
-                    )}
-                  </td>
-                  <td className="p-2">
-                    {editingRowId === load.id ? (
-                      <input
-                        type="checkbox"
-                        checked={editedRow.is_motor}
-                        onChange={(e) =>
-                          handleInputChange('is_motor', e.target.checked)
-                        }
-                      />
-                    ) : load.is_motor ? (
-                      'Yes'
-                    ) : (
-                      'No'
-                    )}
-                  </td>
-                  <td className="p-2 text-right space-x-2">
-                    {editingRowId === load.id ? (
-                      <>
-                        <button
-                          className="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                          onClick={() => handleSaveRow(load.id)}
-                        >
-                          <FaSave /> Save
-                        </button>
-                        <button
-                          className="inline-flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500 ml-2"
-                          onClick={handleCancelEdit}
-                        >
-                          <FaTimes /> Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        className="text-blue-600 hover:text-blue-800"
-                        onClick={() => handleEditRow(load)}
-                      >
-                        <FaEdit />
-                      </button>
-                    )}
-                    <button
-                      className="text-red-600 hover:text-red-800"
-                      onClick={() => deleteLoad(load.id)}
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          {/* Header Row */}
+          <div className="grid grid-cols-6 font-semibold text-sm bg-gray-100 p-2 border-b">
+            <div>Name</div>
+            <div className="text-center">Power (W)</div>
+            <div className="text-center">Voltage</div>
+            <div className="text-center">Type</div>
+            <div className="text-center">Motor?</div>
+            <div className="text-right">Actions</div>
+          </div>
+
+          {/* Virtualized List */}
+          <List
+            height={400} // Adjust based on the desired height
+            itemCount={loads.length}
+            itemSize={50} // Adjust based on row height
+            width="100%"
+          >
+            {Row}
+          </List>
+        </>
       )}
     </div>
   );
