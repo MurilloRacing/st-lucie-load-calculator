@@ -5,13 +5,16 @@ const Results = ({ loads = [] }) => {
     return <p className="text-gray-500 mt-4">Select at least one load to see results.</p>;
   }
 
+  // Only include loads that are enabled (default true)
+  const enabledLoads = loads.filter((load) => load.enabled !== false);
+
   const toKW = (watts) => watts / 1000;
 
-  const continuousLoads = loads.filter((load) => load.type === "Continuous");
-  const nonContinuousLoads = loads.filter((load) => load.type !== "Continuous");
-  const motorLoads = loads.filter((load) => load.isMotor || load.is_motor);
+  const continuousLoads = enabledLoads.filter((load) => load.type === "Continuous");
+  const nonContinuousLoads = enabledLoads.filter((load) => load.type !== "Continuous");
+  const motorLoads = enabledLoads.filter((load) => load.isMotor || load.is_motor);
 
-  const totalConnectedLoadKW = loads.reduce((sum, load) => sum + toKW(load.power), 0);
+  const totalConnectedLoadKW = enabledLoads.reduce((sum, load) => sum + toKW(load.power), 0);
   const continuousLoadKW = continuousLoads.reduce((sum, load) => sum + toKW(load.power), 0) * 1.25;
   const nonContinuousLoadKW = nonContinuousLoads.reduce((sum, load) => sum + toKW(load.power), 0);
   const largestMotorKW = motorLoads.length > 0 ? Math.max(...motorLoads.map((load) => toKW(load.power))) * 0.25 : 0;
