@@ -119,7 +119,7 @@ export default function Calculator() {
           spaceNumber={spaceNumber}
           setSpaceNumber={setSpaceNumber}
         />
-        <div className="overflow-x-auto px-4">
+        <div className="w-full overflow-x-auto px-4">
           <div className="inline-block min-w-[1024px] align-top">
             <LoadList
               loads={loads}
