@@ -20,7 +20,7 @@ const NavBar = () => {
 
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm px-4 py-3 overflow-x-auto">
-      <ul className="flex space-x-4 sm:space-x-6 justify-center whitespace-nowrap text-sm font-medium">
+      <ul className="flex flex-wrap justify-center gap-x-4 sm:gap-x-6 whitespace-nowrap text-sm font-medium">
         {navLinks.map(({ path, label, icon: Icon }) => {
           const isActive = pathname === path;
           return (

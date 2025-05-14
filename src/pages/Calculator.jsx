@@ -47,12 +47,17 @@ export default function Calculator() {
         .eq("is_essential", true);
 
       if (!error) {
-        setLoads(data);
+        // Set 'enabled' to true for all essential loads
+        const updated = data.map((item) => ({
+          ...item,
+          enabled: true,
+        }));
+        setLoads(updated);
       } else {
         console.error("Auto-select error:", error);
       }
     } else {
-      setLoads([]);
+      setLoads([]); // Clear the loads when auto-select is turned off
     }
   };
 
@@ -114,7 +119,7 @@ export default function Calculator() {
           spaceNumber={spaceNumber}
           setSpaceNumber={setSpaceNumber}
         />
-        <LoadList loads={loads} setLoads={setLoads} />
+        <LoadList loads={loads} setLoads={setLoads} autoSelect={autoSelect} />
         <Results loads={loads} />
       </div>
 

@@ -3,33 +3,42 @@ import { supabase } from '@/lib/supabaseClient';
 import { FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 
-const LoadList = ({ loads, setLoads, templateId }) => {
+const LoadList = ({ loads, setLoads, templateId, autoSelect }) => {
   const [editingRowId, setEditingRowId] = useState(null);
   const [editedRow, setEditedRow] = useState({});
 
   useEffect(() => {
     const fetchTemplateLoads = async () => {
-      const { data, error } = await supabase
-        .from('load_list_items')
-        .select('*')
-        .eq('list_id', templateId)
-        .order('created_at', { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from('load_list_items')
+          .select('*')
+          .eq('list_id', templateId)
+          .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching template loads:', error);
-        toast.error('Failed to load items.');
-      } else {
-        // Add `enabled: true` to each load item
-        setLoads(data.map((item) => ({ ...item, enabled: true })));
+        if (error) {
+          console.error('Error fetching template loads:', error);
+          toast.error('Failed to load items.');
+          return;
+        }
+
+        const updated = data.map((item) => ({
+          ...item,
+          enabled: autoSelect ? true : item.enabled !== false,
+        }));
+
+        setLoads(updated);
+      } catch (err) {
+        console.error('Unexpected error:', err);
+        toast.error('An unexpected error occurred.');
       }
     };
 
     if (templateId) fetchTemplateLoads();
-  }, [templateId, setLoads]);
+  }, [templateId, setLoads, autoSelect]);
 
   const deleteLoad = async (id) => {
-    const confirmed = window.confirm('Delete this load?');
-    if (!confirmed) return;
+    if (!window.confirm('Delete this load?')) return;
 
     const { error } = await supabase.from('load_list_items').delete().eq('id', id);
     if (error) {
@@ -82,9 +91,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
 
   const toggleEnabled = (index) => {
     setLoads((prev) =>
-      prev.map((l, i) =>
-        i === index ? { ...l, enabled: !l.enabled } : l
-      )
+      prev.map((l, i) => (i === index ? { ...l, enabled: !l.enabled } : l))
     );
   };
 
@@ -96,9 +103,9 @@ const LoadList = ({ loads, setLoads, templateId }) => {
         <p className="text-gray-500">No loads defined for this template.</p>
       ) : (
         <>
-          {/* Header */}
-          <div className="grid grid-cols-[40px,repeat(5,minmax(0,1fr))] font-semibold text-sm bg-gray-100 p-2 border-b gap-2 md:gap-0">
-            <div className="text-center">✔</div>
+          {/* Header Row */}
+          <div className="grid grid-cols-6 md:grid-cols-7 gap-4 font-semibold text-sm bg-gray-100 p-2 border-b">
+            <div className="text-center text-xs text-gray-600">✔</div>
             <div>Name</div>
             <div className="text-center">Power (W)</div>
             <div className="text-center">Voltage</div>
@@ -107,12 +114,12 @@ const LoadList = ({ loads, setLoads, templateId }) => {
             <div className="text-right">Actions</div>
           </div>
 
-          {/* Rows - Scrollable */}
+          {/* Load Rows */}
           <div className="divide-y border rounded max-h-[400px] overflow-y-auto">
             {loads.map((load, index) => (
               <div
                 key={load.id}
-                className="grid grid-cols-[40px,repeat(5,minmax(0,1fr))] items-center gap-2 md:gap-0 p-2"
+                className="grid grid-cols-6 md:grid-cols-7 gap-4 items-center p-2"
               >
                 {/* Checkbox */}
                 <div className="flex justify-center">
@@ -129,9 +136,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                     <input
                       className="w-full border rounded p-1"
                       value={editedRow.name}
-                      onChange={(e) =>
-                        handleInputChange('name', e.target.value)
-                      }
+                      onChange={(e) => handleInputChange('name', e.target.value)}
                     />
                   ) : (
                     load.name
@@ -145,9 +150,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                       type="number"
                       className="w-full border rounded p-1"
                       value={editedRow.power}
-                      onChange={(e) =>
-                        handleInputChange('power', e.target.value)
-                      }
+                      onChange={(e) => handleInputChange('power', e.target.value)}
                     />
                   ) : (
                     `${load.power} W`
@@ -161,9 +164,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                       type="number"
                       className="w-full border rounded p-1"
                       value={editedRow.voltage}
-                      onChange={(e) =>
-                        handleInputChange('voltage', e.target.value)
-                      }
+                      onChange={(e) => handleInputChange('voltage', e.target.value)}
                     />
                   ) : (
                     `${load.voltage} V`
@@ -176,9 +177,7 @@ const LoadList = ({ loads, setLoads, templateId }) => {
                     <select
                       className="w-full border rounded p-1"
                       value={editedRow.type}
-                      onChange={(e) =>
-                        handleInputChange('type', e.target.value)
-                      }
+                      onChange={(e) => handleInputChange('type', e.target.value)}
                     >
                       <option value="Non-Continuous">Non-Continuous</option>
                       <option value="Continuous">Continuous</option>
