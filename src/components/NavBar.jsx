@@ -21,17 +21,17 @@ const NavBar = () => {
   return (
     <nav className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex justify-center h-16">
-          <ul className="flex items-center gap-x-1 sm:gap-x-2 md:gap-x-4 list-none p-0 m-0">
+        <div className="flex justify-center h-auto py-4">
+          <ul className="flex flex-col gap-y-2 list-none p-0 m-0 w-full max-w-xs">
             {navLinks.map(({ path, label, icon: Icon }) => {
               const isActive = pathname === path;
               return (
-                <li key={path}>
+                <li key={path} className="w-full">
                   <Link
                     to={path}
                     aria-current={isActive ? 'page' : undefined}
                     className={`
-                      inline-flex items-center gap-2 px-3 py-2 rounded-md
+                      inline-flex items-center w-full gap-3 px-4 py-2 rounded-md
                       text-sm font-medium transition-all duration-150
                       focus:outline-none focus:ring-2 focus:ring-offset-2
                       ${isActive
@@ -40,8 +40,8 @@ const NavBar = () => {
                       }
                     `}
                   >
-                    <Icon size={18} aria-hidden="true" />
-                    <span className="hidden sm:inline">{label}</span>
+                    <Icon size={20} aria-hidden="true" />
+                    <span>{label}</span>
                   </Link>
                 </li>
               );
