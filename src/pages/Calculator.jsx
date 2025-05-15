@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast'; // Add this import
+import toast from 'react-hot-toast';
 import UnitInfoHeader from '@/components/UnitInfoHeader';
 import LoadList from '@/components/LoadList';
 import Results from '@/components/Results';
@@ -12,83 +12,60 @@ export default function Calculator() {
   const [buildingId, setBuildingId] = useState('');
   const [spaceNumber, setSpaceNumber] = useState('');
   const [loads, setLoads] = useState([]);
-  const [autoSelect, setAutoSelect] = useState(false);
-  const [savedLists, setSavedLists] = useState([]);
-  const [selectedListId, setSelectedListId] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [templates, setTemplates] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedListId, setSelectedListId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch categories on load
   useEffect(() => {
-    const fetchTemplates = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('Loads')  // Changed to Loads table
-          .select('*')
-          .order('name', { ascending: true });
-
-        if (error) throw error;
-        setSavedLists(data || []);
-      } catch (error) {
-        console.error('Error fetching templates:', error);
-        toast.error('Failed to fetch load templates');
-      } finally {
-        setIsLoading(false);
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from('load_lists')
+        .select('category')
+        .neq('category', null);
+      if (data) {
+        const unique = [...new Set(data.map((d) => d.category))];
+        setCategories(unique);
       }
     };
-
-    fetchTemplates();
+    fetchCategories();
   }, []);
 
-  const handleAutoSelectToggle = async () => {
-    const next = !autoSelect;
-    setAutoSelect(next);
+  // Fetch templates when category is selected
+  useEffect(() => {
+    if (!selectedCategory) return;
+    const fetchTemplates = async () => {
+      const { data } = await supabase
+        .from('load_lists')
+        .select('id, name')
+        .eq('category', selectedCategory);
+      if (data) setTemplates(data);
+    };
+    fetchTemplates();
+  }, [selectedCategory]);
 
-    if (next) {
-      const { data, error } = await supabase
-        .from("Loads")
-        .select("*")
-        .eq("is_essential", true);
+  // Load selected template and append to loads
+  const handleTemplateSelect = async (listId) => {
+    setSelectedListId(listId);
+    const { data, error } = await supabase
+      .from('load_list_items')
+      .select('*')
+      .eq('list_id', listId);
 
-      if (!error) {
-        const updated = data.map((item) => ({
-          ...item,
-          enabled: true,
-        }));
-        setLoads(updated);
-      } else {
-        console.error("Auto-select error:", error);
-      }
-    } else {
-      setLoads([]);
+    if (error) {
+      toast.error("Failed to load template");
+      return;
     }
-  };
 
-  const handleSavedListSelect = async (id) => {
-    if (!id) return;
-    
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('Loads')  // Changed to Loads table
-        .select('*')
-        .eq('id', id);
-      
-      if (error) throw error;
-      
-      if (data?.[0]) {
-        setLoads([{
-          ...data[0],
-          enabled: true
-        }]);
-        toast.success('Load template added');
-      }
-    } catch (error) {
-      console.error('Error loading template:', error);
-      toast.error('Failed to load template');
-    } finally {
-      setIsLoading(false);
-      setSelectedListId('');  // Reset selection
-    }
+    const newItems = data.map(item => ({
+      ...item,
+      enabled: true
+    }));
+
+    setLoads(prev => [...prev, ...newItems]);
+    toast.success("Template added to list");
   };
 
   const handleLoadFromSavedList = (loaded) => {
@@ -96,7 +73,7 @@ export default function Calculator() {
   };
 
   const toggleEnabled = (index) => {
-    setLoads(prev => prev.map((load, i) => 
+    setLoads(prev => prev.map((load, i) =>
       i === index ? { ...load, enabled: !load.enabled } : load
     ));
   };
@@ -111,34 +88,31 @@ export default function Calculator() {
         P1 Electrical Load Calculator
       </h1>
 
-      {/* Auto-select and template controls */}
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="autoSelect"
-            checked={autoSelect}
-            onChange={handleAutoSelectToggle}
-            className="form-checkbox h-5 w-5 text-blue-600"
-          />
-          <label htmlFor="autoSelect" className="text-sm">
-            Auto Select Essentials – Pre-installed
-          </label>
-        </div>
+      {/* Template category + template selection */}
+      <div className="flex flex-wrap gap-3 mb-4">
+        <select
+          value={selectedCategory}
+          onChange={(e) => {
+            setSelectedCategory(e.target.value);
+            setSelectedListId('');
+          }}
+          className="border px-3 py-2 rounded"
+        >
+          <option value="">📂 Select Category</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
 
         <select
-          className="border rounded px-3 py-2"
-          value={selectedListId || ''}
-          onChange={(e) => handleSavedListSelect(e.target.value)}
-          disabled={isLoading}
+          value={selectedListId}
+          onChange={(e) => handleTemplateSelect(e.target.value)}
+          disabled={!selectedCategory}
+          className="border px-3 py-2 rounded"
         >
-          <option value="">
-            {isLoading ? 'Loading...' : '⚡ Load Saved Template'}
-          </option>
-          {savedLists.map((template) => (
-            <option key={template.id} value={template.id}>
-              {template.name} ({template.voltage}V, {template.power}W)
-            </option>
+          <option value="">📁 Load Template</option>
+          {templates.map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
       </div>
