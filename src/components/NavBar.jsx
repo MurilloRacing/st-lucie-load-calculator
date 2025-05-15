@@ -22,7 +22,7 @@ const NavBar = () => {
     <nav className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex justify-center h-16">
-          <ul className="flex items-center gap-x-1 sm:gap-x-2 md:gap-x-4">
+          <ul className="flex items-center gap-x-1 sm:gap-x-2 md:gap-x-4 list-none p-0 m-0">
             {navLinks.map(({ path, label, icon: Icon }) => {
               const isActive = pathname === path;
               return (
