@@ -48,6 +48,11 @@ export default function Calculator() {
 
   // Load selected template and append to loads
   const handleTemplateSelect = async (listId) => {
+    if (!listId) {
+      toast.error("Select a template to load");
+      return;
+    }
+
     setSelectedListId(listId);
     const { data, error } = await supabase
       .from('load_list_items')
@@ -61,7 +66,8 @@ export default function Calculator() {
 
     const newItems = data.map(item => ({
       ...item,
-      enabled: true
+      enabled: true,
+      list_id: listId  // Add list_id to track template source
     }));
 
     setLoads(prev => [...prev, ...newItems]);
@@ -89,7 +95,7 @@ export default function Calculator() {
       </h1>
 
       {/* Template category + template selection */}
-      <div className="flex flex-wrap gap-3 mb-4">
+      <div className="flex flex-wrap items-center gap-3 mb-4">
         <select
           value={selectedCategory}
           onChange={(e) => {
@@ -106,7 +112,7 @@ export default function Calculator() {
 
         <select
           value={selectedListId}
-          onChange={(e) => handleTemplateSelect(e.target.value)}
+          onChange={(e) => setSelectedListId(e.target.value)}
           disabled={!selectedCategory}
           className="border px-3 py-2 rounded"
         >
@@ -115,6 +121,29 @@ export default function Calculator() {
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
+
+        <button
+          onClick={() => {
+            if (selectedListId) handleTemplateSelect(selectedListId);
+            else toast.error("Select a template to load.");
+          }}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Load
+        </button>
+
+        <button
+          onClick={() => {
+            if (!selectedListId) return toast.error("Select a template to remove.");
+            setLoads(prev =>
+              prev.filter(load => load.list_id !== selectedListId)
+            );
+            toast.success("Template removed from list");
+          }}
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Remove
+        </button>
       </div>
 
       {/* Main content */}
