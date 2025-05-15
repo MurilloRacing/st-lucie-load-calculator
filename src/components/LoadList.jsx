@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import toast from 'react-hot-toast';
 
 const LoadList = ({ loads, setLoads, toggleEnabled, deleteLoad }) => {
   const [editingId, setEditingId] = useState(null);
@@ -10,7 +12,7 @@ const LoadList = ({ loads, setLoads, toggleEnabled, deleteLoad }) => {
   };
 
   const handleSave = async (id) => {
-    setLoads(prev => 
+    setLoads(prev =>
       prev.map(load => load.id === id ? editedValues : load)
     );
     setEditingId(null);
@@ -25,6 +27,17 @@ const LoadList = ({ loads, setLoads, toggleEnabled, deleteLoad }) => {
     setEditedValues(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleDuplicate = (load) => {
+    const duplicated = {
+      ...load,
+      id: uuidv4(),
+      name: `${load.name} (copy)`,
+      enabled: true
+    };
+    setLoads(prev => [...prev, duplicated]);
+    toast.success("Load duplicated");
+  };
+
   return (
     <div className="overflow-x-auto">
       <div className="min-w-[1024px]">
@@ -37,7 +50,7 @@ const LoadList = ({ loads, setLoads, toggleEnabled, deleteLoad }) => {
               <th className="px-4 py-2 text-center w-32">Voltage</th>
               <th className="px-4 py-2 text-center w-32">Type</th>
               <th className="px-4 py-2 text-center w-20">Motor?</th>
-              <th className="px-4 py-2 text-right w-24">Actions</th>
+              <th className="px-4 py-2 text-right w-32">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -123,6 +136,12 @@ const LoadList = ({ loads, setLoads, toggleEnabled, deleteLoad }) => {
                         💾
                       </button>
                       <button
+                        onClick={() => handleDuplicate(editedValues)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        ⧉
+                      </button>
+                      <button
                         onClick={handleCancel}
                         className="text-gray-600 hover:text-gray-800"
                       >
@@ -139,9 +158,9 @@ const LoadList = ({ loads, setLoads, toggleEnabled, deleteLoad }) => {
                       </button>
                       <button
                         onClick={() => deleteLoad(load.id)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-sm text-gray-600 underline hover:text-red-600"
                       >
-                        🗑️
+                        Hide
                       </button>
                     </div>
                   )}
