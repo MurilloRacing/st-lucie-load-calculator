@@ -162,8 +162,29 @@ module.exports = {
       colors: {
         primary: 'var(--primary)',
         'primary-hover': 'var(--primary-hover)'
-      }
+      },
+      fontFamily: {
+        sans: ['Inter', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+      },
+      spacing: {
+        '18': '4.5rem',
+        '112': '28rem',
+        '128': '32rem',
+      },
+      minHeight: {
+        '112': '28rem',
+        '128': '32rem',
+      },
+      maxWidth: {
+        '8xl': '88rem',
+        '9xl': '96rem',
+      },
+      screens: {
+        '3xl': '1920px',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
 };
