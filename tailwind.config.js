@@ -50,6 +50,8 @@ module.exports = {
     'space-x-2',
     'space-x-4',
     'space-y-6',
+    'flex-col',
+    'gap-y-2',
     
     // Spacing & Sizing
     'p-2',
@@ -65,6 +67,7 @@ module.exports = {
     'py-3',
     'py-4',
     'py-8',
+    'py-4',
     'w-full',
     'w-4',
     'w-5',
