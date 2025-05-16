@@ -10,6 +10,11 @@ if (process.env.NODE_ENV === 'development') {
   window.onerror = (message, source, lineno, colno, error) => {
     console.error('Global error:', { message, source, lineno, colno, error });
   };
+
+  // Additional React Error Boundary fallback
+  window.onunhandledrejection = (event) => {
+    console.error('Unhandled Promise rejection:', event.reason);
+  };
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
