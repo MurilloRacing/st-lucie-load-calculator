@@ -10,20 +10,34 @@ export default function Calculator() {
   const [unitName, setUnitName] = useState('');
   const [buildingId, setBuildingId] = useState('');
   const [spaceNumber, setSpaceNumber] = useState('');
-  const [loads, setLoads] = useState([]);
+  const [loadList, setLoadList] = useState([]);
+  const [activeTemplates, setActiveTemplates] = useState([]);
 
-  const handleTemplateLoad = (newLoads) => {
-    setLoads(prev => [...prev, ...newLoads]);
+  const loadTemplate = (template) => {
+    const source = template.label || template.templateSource || 'Individual';
+    const newItems = (template.items || [template]).map(item => ({
+      ...item,
+      templateSource: source,
+    }));
+    setLoadList(prev => [...prev, ...newItems]);
+    if (!activeTemplates.includes(source)) {
+      setActiveTemplates(prev => [...prev, source]);
+    }
+  };
+
+  const removeTemplate = (templateName) => {
+    setLoadList(prev => prev.filter(item => item.templateSource !== templateName));
+    setActiveTemplates(prev => prev.filter(name => name !== templateName));
   };
 
   const toggleEnabled = (index) => {
-    setLoads(prev => prev.map((load, i) =>
+    setLoadList(prev => prev.map((load, i) =>
       i === index ? { ...load, enabled: !load.enabled } : load
     ));
   };
 
   const deleteLoad = (id) => {
-    setLoads(prev => prev.filter(load => load.id !== id));
+    setLoadList(prev => prev.filter(load => load.id !== id));
   };
 
   return (
@@ -32,7 +46,11 @@ export default function Calculator() {
         P1 Electrical Load Calculator
       </h1>
 
-      <TemplateManager onTemplateLoad={handleTemplateLoad} />
+      <TemplateManager 
+        onLoadTemplate={loadTemplate}
+        onRemoveTemplate={removeTemplate}
+        activeTemplates={activeTemplates}
+      />
 
       <div id="export-content" className="space-y-6">
         <UnitInfoHeader
@@ -47,30 +65,30 @@ export default function Calculator() {
         <div className="w-full overflow-x-auto">
           <div className="inline-block min-w-[1024px]">
             <LoadList
-              loads={loads}
-              setLoads={setLoads}
+              loads={loadList}
+              setLoads={setLoadList}
               toggleEnabled={toggleEnabled}
               deleteLoad={deleteLoad}
             />
           </div>
         </div>
 
-        <Results loads={loads.filter(load => load.enabled)} />
+        <Results loads={loadList.filter(load => load.enabled)} />
       </div>
 
-      {loads.length > 0 && (
+      {loadList.length > 0 && (
         <ExportPDFButton
           unitName={unitName}
           buildingId={buildingId}
           spaceNumber={spaceNumber}
-          loads={loads}
+          loads={loadList}
         />
       )}
 
       <SaveLoadListControls
-        loads={loads}
+        loads={loadList}
         onSaveSuccess={() => console.log('✅ List Saved')}
-        onLoadList={setLoads}
+        onLoadList={setLoadList}
       />
     </div>
   );
