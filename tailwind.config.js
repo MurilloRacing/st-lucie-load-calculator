@@ -158,7 +158,13 @@ module.exports = {
     'sticky',
     'top-0',
     'z-10',
-    'z-50'
+    'z-50',
+    
+    // Additional Form Controls
+    'bg-green-600',
+    'hover:bg-green-700',
+    'min-w-[200px]',
+    'flex-1',
   ],
   theme: {
     extend: {

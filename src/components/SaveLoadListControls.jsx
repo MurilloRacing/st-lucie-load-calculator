@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 const SaveLoadListControls = ({ loads, onSaveSuccess, onLoadList }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
-    listName: '',
+    name: '',
     buildingId: '',
     spaceNumber: '',
   });
@@ -58,22 +58,21 @@ const SaveLoadListControls = ({ loads, onSaveSuccess, onLoadList }) => {
   };
 
   const handleSave = async () => {
-    if (!form.listName.trim() || loads.length === 0) {
-      toast.error('List name and loads are required');
+    if (!form.name.trim() || loads.length === 0) {
+      toast.error('Template name and loads are required');
       return;
     }
 
     setIsLoading(true);
     try {
-      // Create new list
+      // Create new template
       const { data: listData, error: listError } = await supabase
-        .from('saved_load_lists')
+        .from('load_lists')
         .insert([
           {
-            name: form.listName.trim(),
+            name: form.name.trim(),
             building_id: form.buildingId,
             space_number: form.spaceNumber,
-            user_id: null,
           },
         ])
         .select()
@@ -83,7 +82,7 @@ const SaveLoadListControls = ({ loads, onSaveSuccess, onLoadList }) => {
 
       // Save load items
       const items = loads.map((load) => ({
-        list_id: listData.id,
+        load_list_id: listData.id,
         name: load.name,
         power: load.power,
         voltage: load.voltage,
@@ -92,19 +91,17 @@ const SaveLoadListControls = ({ loads, onSaveSuccess, onLoadList }) => {
       }));
 
       const { error: itemError } = await supabase
-        .from('saved_load_items')
+        .from('load_items')
         .insert(items);
 
       if (itemError) throw itemError;
 
-      toast.success('Load list saved successfully!');
-      setForm({ listName: '', buildingId: '', spaceNumber: '' });
-      setSelectedListId('');
+      toast.success('Template saved successfully!');
+      setForm({ name: '', buildingId: '', spaceNumber: '' });
       onSaveSuccess?.();
-      fetchLists();
     } catch (error) {
       console.error('Save failed:', error);
-      toast.error('Failed to save load list');
+      toast.error('Failed to save template');
     } finally {
       setIsLoading(false);
     }
@@ -130,9 +127,9 @@ const SaveLoadListControls = ({ loads, onSaveSuccess, onLoadList }) => {
         <div className="flex-1 min-w-[200px]">
           <input
             type="text"
-            placeholder="New List Name"
-            value={form.listName}
-            onChange={(e) => handleChange('listName', e.target.value)}
+            placeholder="New Template Name"
+            value={form.name}
+            onChange={(e) => handleChange('name', e.target.value)}
             className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
             disabled={isLoading}
           />
@@ -158,17 +155,17 @@ const SaveLoadListControls = ({ loads, onSaveSuccess, onLoadList }) => {
 
         <button
           onClick={handleSave}
-          disabled={isLoading || !form.listName || loads.length === 0}
+          disabled={isLoading || !form.name || loads.length === 0}
           className={`
             px-4 py-2 rounded text-white transition-colors
             ${
               isLoading
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
+                : 'bg-green-600 hover:bg-green-700'
             }
           `}
         >
-          {isLoading ? 'Saving...' : 'Save Load List'}
+          {isLoading ? 'Saving...' : 'Save Template'}
         </button>
       </div>
     </div>
