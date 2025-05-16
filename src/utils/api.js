@@ -1,36 +1,56 @@
-// src/utils/api.js
 import { supabase } from '@/supabase/client';
 
-// 1. Fetch from `load_samples` (static templates)
-export async function fetchSamples() {
-  const { data, error } = await supabase.from('load_samples').select('*');
-  if (error) {
-    console.error('Error fetching samples:', error);
-    return [];
-  }
-  return data;
-}
-
-// 2. Fetch saved template metadata from `load_lists`
-export async function fetchSavedTemplates() {
-  const { data, error } = await supabase.from('load_lists').select('*');
-  if (error) {
-    console.error('Error fetching saved templates:', error);
-    return [];
-  }
-  return data;
-}
-
-// 3. Fetch saved items for a specific `load_list_id`
-export async function fetchTemplateItems(loadListId) {
+/**
+ * Fetch Load Templates from `load_list_templates` (e.g., Core120, Breakroom)
+ */
+export async function fetchTemplates() {
   const { data, error } = await supabase
-    .from('load_items')
-    .select('*')
-    .eq('load_list_id', loadListId);
+    .from('load_list_templates')
+    .select('*');
 
   if (error) {
-    console.error('Error fetching template items:', error);
+    console.error('Error fetching template list:', error);
     return [];
   }
+
   return data;
+}
+
+/**
+ * Fetch items for a given template ID from `load_list_items`
+ */
+export async function fetchTemplateItems(templateId) {
+  const { data, error } = await supabase
+    .from('load_list_items')
+    .select('*')
+    .eq('list_id', templateId);
+
+  if (error) {
+    console.error(`Error fetching items for template ${templateId}:`, error);
+    return [];
+  }
+
+  return data.map(item => ({
+    ...item,
+    templateSource: templateId,
+  }));
+}
+
+/**
+ * Fetch individual loads from `Loads` table
+ */
+export async function fetchIndividualLoads() {
+  const { data, error } = await supabase
+    .from('Loads')
+    .select('*');
+
+  if (error) {
+    console.error('Error fetching individual loads:', error);
+    return [];
+  }
+
+  return data.map(item => ({
+    ...item,
+    templateSource: 'Individual',
+  }));
 }

@@ -1,25 +1,61 @@
 // src/components/TemplateManager.jsx
-import React, { useState, useEffect } from 'react';
-import { fetchSamples } from '@/utils/api';
+import React, { useEffect, useState } from 'react';
+import {
+  fetchTemplates,
+  fetchTemplateItems,
+  fetchIndividualLoads
+} from '@/utils/api';
 
 const TemplateManager = ({ onLoadTemplate, onRemoveTemplate, activeTemplates }) => {
   const [templateMenuOpen, setTemplateMenuOpen] = useState(false);
   const [individualMenuOpen, setIndividualMenuOpen] = useState(false);
-  const [samples, setSamples] = useState([]);
+  const [templates, setTemplates] = useState([]);
+  const [individualLoads, setIndividualLoads] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchSamples().then(setSamples);
+    const loadData = async () => {
+      try {
+        const [templatesData, loadsData] = await Promise.all([
+          fetchTemplates(),
+          fetchIndividualLoads()
+        ]);
+        setTemplates(templatesData);
+        setIndividualLoads(loadsData);
+      } catch (error) {
+        console.error('Failed to load templates:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
   }, []);
 
-  const handleLoad = (template) => {
-    onLoadTemplate(template);
-    setTemplateMenuOpen(false);
+  const handleLoadTemplate = async (template) => {
+    try {
+      const items = await fetchTemplateItems(template.id);
+      onLoadTemplate({
+        label: template.name,
+        items: items.map(item => ({ ...item, templateSource: template.name }))
+      });
+      setTemplateMenuOpen(false);
+    } catch (error) {
+      console.error('Failed to load template items:', error);
+    }
+  };
+
+  const handleLoadIndividual = (load) => {
+    onLoadTemplate({
+      label: 'Individual',
+      items: [{ ...load, templateSource: 'Individual' }]
+    });
+    setIndividualMenuOpen(false);
   };
 
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.template-menu')) {
+      if (!event.target.closest('.dropdown-menu')) {
         setTemplateMenuOpen(false);
         setIndividualMenuOpen(false);
       }
@@ -31,57 +67,63 @@ const TemplateManager = ({ onLoadTemplate, onRemoveTemplate, activeTemplates }) 
 
   return (
     <div className="relative z-20 mb-4 space-y-4">
-      {/* Top Controls */}
       <div className="flex gap-4">
         {/* Template Dropdown */}
-        <div className="relative template-menu">
+        <div className="relative dropdown-menu">
           <button
-            onClick={() => setTemplateMenuOpen((prev) => !prev)}
+            onClick={() => setTemplateMenuOpen(prev => !prev)}
             className="bg-gray-900 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition-all"
+            disabled={isLoading}
           >
-            + Load Template ▼
+            {isLoading ? 'Loading...' : '+ Load Template ▼'}
           </button>
           {templateMenuOpen && (
             <div className="absolute left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-white shadow-lg rounded border border-gray-300 z-30">
-              {samples.map((template, idx) => (
-                <div key={idx} className="flex justify-between items-center px-4 py-2 hover:bg-gray-100">
-                  <span className="truncate">{template.label || `Sample ${idx + 1}`}</span>
-                  <button
-                    onClick={() => handleLoad(template)}
-                    className="text-blue-600 hover:underline"
-                  >
-                    + Load
-                  </button>
-                </div>
-              ))}
+              {templates.length === 0 ? (
+                <div className="px-4 py-2 text-gray-500">No templates available</div>
+              ) : (
+                templates.map((tpl) => (
+                  <div key={tpl.id} className="flex justify-between items-center px-4 py-2 hover:bg-gray-100">
+                    <span className="truncate">{tpl.name}</span>
+                    <button
+                      onClick={() => handleLoadTemplate(tpl)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      + Load
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>
 
-        {/* Individual Loads */}
-        <div className="relative template-menu">
+        {/* Individual Loads Dropdown */}
+        <div className="relative dropdown-menu">
           <button
-            onClick={() => setIndividualMenuOpen((prev) => !prev)}
+            onClick={() => setIndividualMenuOpen(prev => !prev)}
             className="bg-gray-900 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition-all"
+            disabled={isLoading}
           >
-            + Individual Loads ▼
+            {isLoading ? 'Loading...' : '+ Individual Loads ▼'}
           </button>
           {individualMenuOpen && (
             <div className="absolute left-0 mt-2 w-72 max-h-80 overflow-y-auto bg-white shadow-lg rounded border border-gray-300 z-30 p-2">
-              {samples.flatMap((t) => t.items || []).map((load, idx) => (
-                <div key={idx} className="flex justify-between items-center px-2 py-1 hover:bg-gray-100">
-                  <span className="truncate text-sm">{load.name}</span>
-                  <button
-                    onClick={() => {
-                      onLoadTemplate({ ...load, templateSource: 'Individual' });
-                      setIndividualMenuOpen(false);
-                    }}
-                    className="text-green-600 hover:underline text-sm"
-                  >
-                    + Add
-                  </button>
-                </div>
-              ))}
+              {individualLoads.length === 0 ? (
+                <div className="px-2 py-1 text-gray-500">No loads available</div>
+              ) : (
+                individualLoads.map((load) => (
+                  <div key={load.id} className="flex justify-between items-center px-2 py-1 hover:bg-gray-100">
+                    <span className="truncate text-sm">{load.name}</span>
+                    <button
+                      onClick={() => handleLoadIndividual(load)}
+                      className="text-green-600 hover:underline text-sm"
+                    >
+                      + Add
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>
