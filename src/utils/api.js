@@ -1,3 +1,4 @@
+// src/utils/api.js
 import { supabase } from '@/supabase/client';
 
 /**
@@ -29,13 +30,12 @@ export async function fetchTemplateItems(templateId) {
       name,
       power,
       voltage,
-      description,
       type,
       is_motor,
       template_id,
       created_at
     `)
-    .eq('template_id', templateId)  // Changed from list_id to template_id
+    .eq('template_id', templateId)
     .order('name');
 
   if (error) {
@@ -46,7 +46,7 @@ export async function fetchTemplateItems(templateId) {
   return data.map(item => ({
     ...item,
     templateSource: templateId,
-    enabled: true  // Default new items to enabled
+    enabled: true
   }));
 }
 
@@ -66,22 +66,21 @@ export async function fetchIndividualLoads() {
 
   return data.map(item => ({
     ...item,
-    templateSource: 'Individual',
+    templateSource: 'Individual'
   }));
 }
 
 /**
- * Fetch saved load lists (excluding templates)
+ * (Optional) Fetch saved load lists from `load_lists` if needed in another context
  */
-export async function fetchSavedLists() {
+export async function fetchSavedLoadLists() {
   const { data, error } = await supabase
-    .from('load_lists')
+    .from('load_lists') // ✅ correct table
     .select('*')
-    .neq('category', 'Template') // exclude templates
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching saved lists:', error);
+    console.error('Error fetching saved load lists:', error);
     return [];
   }
 
