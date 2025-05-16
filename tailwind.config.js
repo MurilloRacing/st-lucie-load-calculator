@@ -79,6 +79,7 @@ module.exports = {
     'h-4',
     'h-5',
     'h-8',
+    'max-h-80',
     'max-h-[400px]',
     'min-h-screen',
     
@@ -122,7 +123,10 @@ module.exports = {
     'hover:text-blue-800',
     'hover:text-red-800',
     'hover:text-green-800',
+    'cursor-pointer',
+    'bg-blue-100',
     'text-blue-600',
+    'text-blue-800',
     'text-red-600',
     'text-green-600',
     'text-gray-500',
@@ -158,6 +162,8 @@ module.exports = {
     'sticky',
     'top-0',
     'z-10',
+    'z-20',
+    'z-30',
     'z-50',
     
     // Additional Form Controls
