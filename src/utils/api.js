@@ -69,3 +69,21 @@ export async function fetchIndividualLoads() {
     templateSource: 'Individual',
   }));
 }
+
+/**
+ * Fetch saved load lists (excluding templates)
+ */
+export async function fetchSavedLists() {
+  const { data, error } = await supabase
+    .from('load_lists')
+    .select('*')
+    .neq('category', 'Template') // exclude templates
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching saved lists:', error);
+    return [];
+  }
+
+  return data || [];
+}
