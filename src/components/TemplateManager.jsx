@@ -135,11 +135,21 @@ const TemplateManager = ({ onLoadTemplate, onRemoveTemplate, activeTemplates }) 
           {activeTemplates.map((tpl, idx) => (
             <div
               key={idx}
-              className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center shadow-sm hover:bg-blue-200 cursor-pointer transition-all"
-              onClick={() => onRemoveTemplate(tpl)}
-              title="Click to remove"
+              className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center shadow-sm transition-all"
             >
-              {tpl} <span className="ml-2 font-bold text-blue-600">×</span>
+              {tpl}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('Removing template:', tpl); // Debug logging
+                  onRemoveTemplate(tpl);
+                }}
+                className="ml-2 text-blue-600 font-bold cursor-pointer hover:text-blue-800"
+                title="Remove this template"
+                aria-label={`Remove ${tpl} template`}
+              >
+                ×
+              </button>
             </div>
           ))}
         </div>
