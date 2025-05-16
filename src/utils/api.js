@@ -2,7 +2,7 @@
 import { supabase } from '@/supabase/client';
 
 /**
- * Fetch Load Templates from `load_lists` table
+ * Fetch all template entries from `load_lists` where category is 'Template'
  */
 export async function fetchTemplates() {
   const { data, error } = await supabase
@@ -12,7 +12,7 @@ export async function fetchTemplates() {
     .order('name');
 
   if (error) {
-    console.error('Error fetching template list:', error);
+    console.error('Error fetching templates:', error);
     return [];
   }
 
@@ -20,7 +20,7 @@ export async function fetchTemplates() {
 }
 
 /**
- * Fetch items for a given template ID from `load_list_items`
+ * Fetch items for a given template from `load_list_items`
  */
 export async function fetchTemplateItems(templateId) {
   const { data, error } = await supabase
@@ -31,11 +31,9 @@ export async function fetchTemplateItems(templateId) {
       power,
       voltage,
       type,
-      is_motor,
-      template_id,
-      created_at
+      is_motor
     `)
-    .eq('template_id', templateId)
+    .eq('list_id', templateId)
     .order('name');
 
   if (error) {
@@ -51,11 +49,11 @@ export async function fetchTemplateItems(templateId) {
 }
 
 /**
- * Fetch individual loads from `Loads` table
+ * Fetch individual load items from `master_loads`
  */
 export async function fetchIndividualLoads() {
   const { data, error } = await supabase
-    .from('Loads')
+    .from('master_loads')
     .select('*')
     .order('name');
 
@@ -66,23 +64,7 @@ export async function fetchIndividualLoads() {
 
   return data.map(item => ({
     ...item,
-    templateSource: 'Individual'
+    templateSource: 'Individual',
+    enabled: true
   }));
-}
-
-/**
- * (Optional) Fetch saved load lists from `load_lists` if needed in another context
- */
-export async function fetchSavedLoadLists() {
-  const { data, error } = await supabase
-    .from('load_lists') // ✅ correct table
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching saved load lists:', error);
-    return [];
-  }
-
-  return data || [];
 }
