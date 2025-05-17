@@ -133,19 +133,19 @@ export default function Admin() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
-      <h1 className="text-3xl font-bold text-center mb-4">Admin: Master Load Builder</h1>
+    <div className="p-4 md:p-6 space-y-6 max-w-[1600px] mx-auto">
+      <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">Admin: Master Load Builder</h1>
 
-      {/* Input Controls */}
-      <div className="flex flex-wrap gap-4 items-center justify-between mb-4">
+      {/* Input Controls - Make more mobile friendly */}
+      <div className="grid grid-cols-1 md:flex md:flex-wrap gap-4 items-center justify-between mb-4">
         <input
-          className="border px-3 py-2 rounded w-64"
+          className="border px-3 py-2 rounded w-full md:w-64"
           placeholder="Template Name"
           value={templateName}
           onChange={(e) => setTemplateName(e.target.value)}
         />
         <select
-          className="border px-3 py-2 rounded w-64"
+          className="border px-3 py-2 rounded w-full md:w-64"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
@@ -155,128 +155,132 @@ export default function Admin() {
           <option value="Break Room">Break Room</option>
           <option value="Entertainment Area">Entertainment Area</option>
         </select>
-        <input
-          className="border px-3 py-2 rounded w-40"
-          placeholder="Building ID"
-          value={buildingId}
-          onChange={(e) => setBuildingId(e.target.value)}
-        />
-        <input
-          className="border px-3 py-2 rounded w-40"
-          placeholder="Space Number"
-          value={spaceNumber}
-          onChange={(e) => setSpaceNumber(e.target.value)}
-        />
+        <div className="flex gap-2 w-full md:w-auto">
+          <input
+            className="border px-3 py-2 rounded flex-1 md:w-40"
+            placeholder="Building ID"
+            value={buildingId}
+            onChange={(e) => setBuildingId(e.target.value)}
+          />
+          <input
+            className="border px-3 py-2 rounded flex-1 md:w-40"
+            placeholder="Space Number"
+            value={spaceNumber}
+            onChange={(e) => setSpaceNumber(e.target.value)}
+          />
+        </div>
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           onClick={handleSaveTemplate}
         >
           💾 Save Template
         </button>
       </div>
 
-      {/* Editable Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-300 text-sm rounded overflow-hidden">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-2 text-center">✓</th>
-              <th className="p-2">Name</th>
-              <th className="p-2">Power (W)</th>
-              <th className="p-2">Voltage</th>
-              <th className="p-2">Type</th>
-              <th className="p-2 text-center">Motor?</th>
-              <th className="p-2 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {loads.map(load => (
-              <tr key={load.id} className="hover:bg-gray-50">
-                <td className="p-2 text-center">
-                  <input
-                    type="checkbox"
-                    checked={load.selected}
-                    onChange={() => toggleSelected(load.id)}
-                  />
-                </td>
-
-                {editingId === load.id ? (
-                  <>
-                    <td className="p-2">
-                      <input
-                        className="border px-2 py-1 w-full"
-                        name="name"
-                        value={editingForm.name}
-                        onChange={handleEditChange}
-                      />
-                    </td>
-                    <td className="p-2">
-                      <input
-                        className="border px-2 py-1 w-full"
-                        name="power"
-                        type="number"
-                        value={editingForm.power}
-                        onChange={handleEditChange}
-                      />
-                    </td>
-                    <td className="p-2">
-                      <input
-                        className="border px-2 py-1 w-full"
-                        name="voltage"
-                        type="number"
-                        value={editingForm.voltage}
-                        onChange={handleEditChange}
-                      />
-                    </td>
-                    <td className="p-2">
-                      <select
-                        name="type"
-                        value={editingForm.type}
-                        onChange={handleEditChange}
-                        className="border px-2 py-1 w-full"
-                      >
-                        <option value="Continuous">Continuous</option>
-                        <option value="Non-Continuous">Non-Continuous</option>
-                      </select>
-                    </td>
-                    <td className="p-2 text-center">
-                      <input
-                        type="checkbox"
-                        name="is_motor"
-                        checked={editingForm.is_motor}
-                        onChange={handleEditChange}
-                      />
-                    </td>
-                    <td className="p-2 flex justify-center gap-2">
-                      <button onClick={saveEdit} title="Save" className="text-green-600 hover:text-green-800">
-                        <Save size={16} />
-                      </button>
-                      <button onClick={cancelEdit} title="Cancel" className="text-gray-600 hover:text-gray-800">
-                        <X size={16} />
-                      </button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td className="p-2">{load.name}</td>
-                    <td className="p-2">{load.power}</td>
-                    <td className="p-2">{load.voltage}</td>
-                    <td className="p-2">{load.type}</td>
-                    <td className="p-2 text-center">{load.is_motor ? 'Yes' : 'No'}</td>
-                    <td className="p-2 flex justify-center gap-2">
-                      <button onClick={() => startEdit(load)} title="Edit" className="text-blue-600 hover:text-blue-800">
-                        <Pencil size={16} />
-                      </button>
-                      <button onClick={() => deleteLoad(load.id)} title="Delete" className="text-red-600 hover:text-red-800">
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </>
-                )}
+      {/* Responsive Table Wrapper */}
+      <div className="overflow-x-auto -mx-4 md:mx-0">
+        <div className="min-w-[800px] md:w-full p-4 md:p-0">
+          <table className="w-full border border-gray-300 text-sm rounded overflow-hidden">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-2 text-center">✓</th>
+                <th className="p-2">Name</th>
+                <th className="p-2">Power (W)</th>
+                <th className="p-2">Voltage</th>
+                <th className="p-2">Type</th>
+                <th className="p-2 text-center">Motor?</th>
+                <th className="p-2 text-center">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {loads.map(load => (
+                <tr key={load.id} className="hover:bg-gray-50">
+                  <td className="p-2 text-center">
+                    <input
+                      type="checkbox"
+                      checked={load.selected}
+                      onChange={() => toggleSelected(load.id)}
+                    />
+                  </td>
+
+                  {editingId === load.id ? (
+                    <>
+                      <td className="p-2">
+                        <input
+                          className="border px-2 py-1 w-full"
+                          name="name"
+                          value={editingForm.name}
+                          onChange={handleEditChange}
+                        />
+                      </td>
+                      <td className="p-2">
+                        <input
+                          className="border px-2 py-1 w-full"
+                          name="power"
+                          type="number"
+                          value={editingForm.power}
+                          onChange={handleEditChange}
+                        />
+                      </td>
+                      <td className="p-2">
+                        <input
+                          className="border px-2 py-1 w-full"
+                          name="voltage"
+                          type="number"
+                          value={editingForm.voltage}
+                          onChange={handleEditChange}
+                        />
+                      </td>
+                      <td className="p-2">
+                        <select
+                          name="type"
+                          value={editingForm.type}
+                          onChange={handleEditChange}
+                          className="border px-2 py-1 w-full"
+                        >
+                          <option value="Continuous">Continuous</option>
+                          <option value="Non-Continuous">Non-Continuous</option>
+                        </select>
+                      </td>
+                      <td className="p-2 text-center">
+                        <input
+                          type="checkbox"
+                          name="is_motor"
+                          checked={editingForm.is_motor}
+                          onChange={handleEditChange}
+                        />
+                      </td>
+                      <td className="p-2 flex justify-center gap-2">
+                        <button onClick={saveEdit} title="Save" className="text-green-600 hover:text-green-800">
+                          <Save size={16} />
+                        </button>
+                        <button onClick={cancelEdit} title="Cancel" className="text-gray-600 hover:text-gray-800">
+                          <X size={16} />
+                        </button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="p-2">{load.name}</td>
+                      <td className="p-2">{load.power}</td>
+                      <td className="p-2">{load.voltage}</td>
+                      <td className="p-2">{load.type}</td>
+                      <td className="p-2 text-center">{load.is_motor ? 'Yes' : 'No'}</td>
+                      <td className="p-2 flex justify-center gap-2">
+                        <button onClick={() => startEdit(load)} title="Edit" className="text-blue-600 hover:text-blue-800">
+                          <Pencil size={16} />
+                        </button>
+                        <button onClick={() => deleteLoad(load.id)} title="Delete" className="text-red-600 hover:text-red-800">
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
