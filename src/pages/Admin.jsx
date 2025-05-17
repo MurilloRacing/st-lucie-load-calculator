@@ -141,9 +141,11 @@ export default function Admin() {
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-[1600px] mx-auto">
-      <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">Admin: Master Load Builder</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">
+        Admin: Master Load Builder
+      </h1>
 
-      {/* Input Controls - Make more mobile friendly */}
+      {/* Form Controls */}
       <div className="grid grid-cols-1 md:flex md:flex-wrap gap-4 items-center justify-between mb-4">
         <input
           className="border px-3 py-2 rounded w-full md:w-64"
@@ -184,22 +186,41 @@ export default function Admin() {
         </button>
       </div>
 
-      {/* Responsive Table Wrapper */}
+      {/* Select/Clear Buttons */}
+      <div className="flex flex-wrap gap-4 justify-center md:justify-end">
+        <button
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          onClick={() => setLoads(prev => prev.map(load => ({ ...load, selected: true })))}
+        >
+          Select All
+        </button>
+        <button
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          onClick={() => setLoads(prev => prev.map(load => ({ ...load, selected: false })))}
+        >
+          Clear
+        </button>
+      </div>
+
+      {/* Table Container */}
       <div className="overflow-x-auto -mx-4 md:mx-0">
         <div className="min-w-[800px] md:w-full p-4 md:p-0">
           <table className="w-full border border-gray-300 text-sm rounded overflow-hidden">
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-2 text-center">
-                  <input
-                    type="checkbox"
-                    checked={allChecked}
-                    ref={(input) => {
-                      if (input) input.indeterminate = !allChecked && someChecked;
-                    }}
-                    onChange={handleToggleAll}
-                    className="form-checkbox"
-                  />
+                  <label className="inline-flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="accent-green-600 focus:ring-2 focus:ring-blue-500 hover:ring-1 hover:ring-blue-300"
+                      checked={allChecked}
+                      ref={(input) => {
+                        if (input) input.indeterminate = !allChecked && someChecked;
+                      }}
+                      onChange={handleToggleAll}
+                    />
+                    <span className="text-sm text-gray-600">All</span>
+                  </label>
                 </th>
                 <th className="p-2">Name</th>
                 <th className="p-2">Power (W)</th>
@@ -215,6 +236,7 @@ export default function Admin() {
                   <td className="p-2 text-center">
                     <input
                       type="checkbox"
+                      className="accent-green-600 focus:ring-2 focus:ring-blue-500 hover:ring-1 hover:ring-blue-300"
                       checked={load.selected}
                       onChange={() => toggleSelected(load.id)}
                     />
