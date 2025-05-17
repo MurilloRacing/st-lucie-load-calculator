@@ -178,6 +178,10 @@ export default function Admin() {
             onChange={(e) => setSpaceNumber(e.target.value)}
           />
         </div>
+      </div>
+
+      {/* Save Template button container */}
+      <div className="grid grid-cols-1 md:flex md:flex-wrap gap-4 items-center justify-start mb-4">
         <button
           className="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           onClick={handleSaveTemplate}
@@ -186,8 +190,8 @@ export default function Admin() {
         </button>
       </div>
 
-      {/* Select/Clear Buttons */}
-      <div className="flex flex-wrap gap-4 justify-center md:justify-end">
+      {/* Select/Clear Buttons - Changed from justify-end to justify-start */}
+      <div className="flex flex-wrap gap-4 justify-center md:justify-start">
         <button
           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           onClick={() => setLoads(prev => prev.map(load => ({ ...load, selected: true })))}
@@ -210,9 +214,16 @@ export default function Admin() {
               <tr>
                 <th className="p-2 text-center">
                   <label className="inline-flex items-center gap-1 cursor-pointer">
+                    {/* Header "Select All" checkbox */}
                     <input
                       type="checkbox"
-                      className="accent-green-600 focus:ring-2 focus:ring-blue-500 hover:ring-1 hover:ring-blue-300"
+                      className="w-5 h-5 rounded
+                        accent-green-600
+                        hover:accent-green-500
+                        focus:ring-2 
+                        focus:ring-green-500 
+                        focus:ring-offset-2
+                        cursor-pointer"
                       checked={allChecked}
                       ref={(input) => {
                         if (input) input.indeterminate = !allChecked && someChecked;
@@ -234,9 +245,16 @@ export default function Admin() {
               {loads.map(load => (
                 <tr key={load.id} className="hover:bg-gray-50">
                   <td className="p-2 text-center">
+                    {/* Row checkboxes */}
                     <input
                       type="checkbox"
-                      className="accent-green-600 focus:ring-2 focus:ring-blue-500 hover:ring-1 hover:ring-blue-300"
+                      className="w-5 h-5 rounded
+                        accent-green-600
+                        hover:accent-green-500
+                        focus:ring-2 
+                        focus:ring-green-500 
+                        focus:ring-offset-2
+                        cursor-pointer"
                       checked={load.selected}
                       onChange={() => toggleSelected(load.id)}
                     />
