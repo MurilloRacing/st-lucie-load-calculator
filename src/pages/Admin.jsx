@@ -132,6 +132,13 @@ export default function Admin() {
     }
   };
 
+  const allChecked = loads.length > 0 && loads.every(load => load.selected);
+  const someChecked = loads.some(load => load.selected);
+
+  const handleToggleAll = () => {
+    setLoads(prev => prev.map(load => ({ ...load, selected: !allChecked })));
+  };
+
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-[1600px] mx-auto">
       <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">Admin: Master Load Builder</h1>
@@ -183,7 +190,17 @@ export default function Admin() {
           <table className="w-full border border-gray-300 text-sm rounded overflow-hidden">
             <thead className="bg-gray-100">
               <tr>
-                <th className="p-2 text-center">✓</th>
+                <th className="p-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={allChecked}
+                    ref={(input) => {
+                      if (input) input.indeterminate = !allChecked && someChecked;
+                    }}
+                    onChange={handleToggleAll}
+                    className="form-checkbox"
+                  />
+                </th>
                 <th className="p-2">Name</th>
                 <th className="p-2">Power (W)</th>
                 <th className="p-2">Voltage</th>
